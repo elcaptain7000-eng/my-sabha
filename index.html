@@ -4,63 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#161616">
     <title>السبحة المحمدية</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --main-green: #4CAF50; --bg-black: #0a0a0a; --card-dark: #161616; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
-        
         body { background: var(--bg-black); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-
-        .header { padding: 12px 15px; text-align: center; background: var(--card-dark); z-index: 10; border-bottom: 1px solid #222; }
+        .header { padding: 12px 15px; text-align: center; background: var(--card-dark); border-bottom: 1px solid #222; }
         .mode-selector { display: flex; gap: 10px; margin-top: 10px; }
         .mode-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #333; background: #222; color: #888; font-weight: bold; font-size: 0.95rem; }
         .mode-btn.active { background: var(--main-green); color: white; border-color: var(--main-green); }
-
-        /* منطقة العرض الرئيسية: تم ضبطها لتكون في وسط الشاشة تماماً */
-        .main-display { 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; /* سنترت كل حاجة في النص */
-            position: relative; 
-            padding: 20px 0;
-        }
-
-        .intent-area { font-size: 0.95rem; color: #00d4ff; text-align: center; padding: 0 20px; min-height: 2.5rem; font-weight: bold; margin-bottom: 15px; line-height: 1.4; }
-        
-        .current-task { 
-            font-size: 1.7rem; color: #ff9800; text-align: center; padding: 0 25px; 
-            min-height: 4.5rem; display: flex; align-items: center; justify-content: center;
-            line-height: 1.4; z-index: 5; margin-bottom: 20px; cursor: pointer;
-        }
-
+        .main-display { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .intent-area { font-size: 0.95rem; color: #00d4ff; text-align: center; padding: 0 20px; min-height: 2.5rem; font-weight: bold; margin-bottom: 10px; line-height: 1.4; }
+        .current-task { font-size: 1.75rem; color: #ff9800; text-align: center; padding: 0 25px; min-height: 4rem; display: flex; align-items: center; justify-content: center; z-index: 5; margin-bottom: 15px; cursor: pointer; }
         .counter-container { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
-        
         .counter-number { font-size: 7rem; font-family: 'Consolas', monospace; color: var(--main-green); font-weight: bold; z-index: 2; }
-
         .progress-svg { position: absolute; width: 100%; height: 100%; transform: rotate(-90deg); }
         .progress-svg circle { fill: none; stroke-width: 10; stroke: #1a1a1a; }
         .progress-svg circle.bar { stroke: var(--main-green); stroke-dasharray: 816; stroke-dashoffset: 816; transition: 0.3s; stroke-linecap: round; }
-
-        .footer-info { font-size: 1rem; color: #666; font-weight: bold; margin-bottom: 20px; min-height: 1.5rem; }
-
-        /* أزرار التنقل: تم تحسين مكانها وحجمها */
-        .task-controls { display: flex; gap: 30px; margin-bottom: 10px; z-index: 10; }
+        .footer-info { font-size: 1rem; color: #666; font-weight: bold; margin-bottom: 15px; min-height: 1.5rem; }
+        .task-controls { display: flex; gap: 40px; margin-bottom: 10px; }
         .control-btn { background: #222; border: 1px solid #444; color: #bbb; width: 55px; height: 55px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
-        .control-btn:active { background: var(--main-green); color: white; transform: scale(0.9); }
-
-        .bottom-nav { background: var(--card-dark); padding: 18px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #222; }
-        .nav-btn { background: #252525; border: 1px solid #333; color: white; width: 55px; height: 55px; border-radius: 15px; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
-        .nav-btn:active { background: #444; transform: scale(0.95); }
+        .bottom-nav { background: var(--card-dark); padding: 18px; display: flex; justify-content: space-between; border-top: 1px solid #222; }
+        .nav-btn { background: #252525; border: 1px solid #333; color: white; width: 55px; height: 55px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
         .nav-btn.reset { color: #f44336; }
     </style>
 </head>
 <body onclick="handleGlobalTap(event)">
 
     <div class="header">
-        <div style="font-weight: bold; font-size: 1.1rem; color: var(--main-green);">السبحة المحمدية</div>
+        <div style="font-weight: bold; color: var(--main-green);">السبحة المحمدية</div>
         <div class="mode-selector">
             <button id="freeMode" class="mode-btn active" onclick="setMode('free', event)">عداد حر</button>
             <button id="wordMode" class="mode-btn" onclick="setMode('word', event)">الورد المحمدي</button>
@@ -69,9 +48,7 @@
 
     <div class="main-display">
         <div id="intent" class="intent-area"></div>
-        
-        <div id="taskTitle" class="current-task" onclick="handleTaskClick(event)">اضغط هنا لتخصيص الذكر</div>
-
+        <div id="taskTitle" class="current-task" onclick="handleTaskClick(event)"></div>
         <div class="counter-container">
             <svg class="progress-svg">
                 <circle cx="140" cy="140" r="130" />
@@ -79,9 +56,7 @@
             </svg>
             <div id="mainCounter" class="counter-number">0</div>
         </div>
-
         <div id="progressInfo" class="footer-info"></div>
-
         <div id="taskControls" class="task-controls" style="visibility:hidden;">
             <button class="control-btn" onclick="prevTask(event)"><i class="fas fa-chevron-right"></i></button>
             <button class="control-btn" onclick="skipTask(event)"><i class="fas fa-chevron-left"></i></button>
@@ -123,55 +98,34 @@
             { name: صلوات, target: 3 }
         ];
 
-        let count = 0, mode = 'free', currentIdx = 0, freeTask = "اضغط هنا لتخصيص الذكر";
+        let count = 0, mode = 'free', currentIdx = 0, freeTask = "اضغط لتخصيص الذكر";
 
         function handleGlobalTap(e) {
             if(e.target.closest('.header') || e.target.closest('.bottom-nav') || e.target.closest('.current-task') || e.target.closest('.task-controls')) return;
-            
             count++;
             if (navigator.vibrate) navigator.vibrate(45); 
-            
             if(mode === 'word') {
                 let t = tasks[currentIdx];
                 updateProgress((Math.min(count, t.target) / t.target) * 816);
-                if(count >= t.target) {
-                    setTimeout(nextTask, 200);
-                }
+                if(count >= t.target) setTimeout(nextTask, 200);
             }
             updateUI();
         }
 
-        function handleTaskClick(e) {
-            if(mode === 'free') {
-                e.stopPropagation();
-                let n = prompt("اكتب الذكر الذي تريده:", freeTask);
-                if(n !== null && n.trim() !== "") {
-                    freeTask = n;
-                    count = 0;
-                    updateUI();
-                }
-            }
-        }
-
-        function updateProgress(offset) {
-            document.getElementById('progressBar').style.strokeDashoffset = 816 - offset;
-        }
-
         function updateUI() {
             document.getElementById('mainCounter').innerText = count;
-            const taskControls = document.getElementById('taskControls');
-
+            const controls = document.getElementById('taskControls');
             if(mode === 'word') {
                 let t = tasks[currentIdx];
                 document.getElementById('taskTitle').innerText = t.name;
                 document.getElementById('intent').innerText = t.intent || "";
                 document.getElementById('progressInfo').innerText = `خطوة ${currentIdx + 1} من 25 | المطلوب: ${t.target}`;
-                taskControls.style.visibility = 'visible';
+                controls.style.visibility = 'visible';
             } else {
                 document.getElementById('taskTitle').innerText = freeTask;
                 document.getElementById('intent').innerText = "";
                 document.getElementById('progressInfo').innerText = "";
-                taskControls.style.visibility = 'hidden';
+                controls.style.visibility = 'hidden';
                 updateProgress(0);
             }
         }
@@ -181,25 +135,20 @@
             mode = m; count = 0; currentIdx = 0; 
             document.getElementById('freeMode').classList.toggle('active', m === 'free');
             document.getElementById('wordMode').classList.toggle('active', m === 'word');
-            updateUI(); 
-            updateProgress(0);
+            updateUI(); updateProgress(0);
         }
 
         function nextTask() {
-            if(currentIdx < tasks.length - 1) {
-                currentIdx++; count = 0; updateProgress(0); updateUI();
-                if (navigator.vibrate) navigator.vibrate([100, 50, 100]); 
-            } else {
-                alert("تم الورد المحمدي بفضل الله");
-                setMode('free');
-            }
+            if(currentIdx < tasks.length - 1) { currentIdx++; count = 0; updateProgress(0); updateUI(); }
+            else { alert("تم الورد المحمدي بفضل الله"); setMode('free'); }
         }
 
         function prevTask(e) { e.stopPropagation(); if(currentIdx > 0) { currentIdx--; count = 0; updateProgress(0); updateUI(); } }
         function skipTask(e) { e.stopPropagation(); nextTask(); }
         function decrement(e) { e.stopPropagation(); if(count > 0) count--; updateUI(); }
-        function resetAll(e) { e.stopPropagation(); if(confirm("هل تريد تصفير العداد؟")) { count = 0; updateUI(); updateProgress(0); } }
-
+        function resetAll(e) { e.stopPropagation(); if(confirm("تصفير العداد؟")) { count = 0; updateUI(); updateProgress(0); } }
+        function handleTaskClick(e) { if(mode === 'free') { e.stopPropagation(); let n = prompt("الذكر الجديد:", freeTask); if(n) { freeTask = n; count = 0; updateUI(); } } }
+        function updateProgress(offset) { document.getElementById('progressBar').style.strokeDashoffset = 816 - offset; }
         window.onload = updateUI;
     </script>
 </body>
