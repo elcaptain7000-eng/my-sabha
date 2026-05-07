@@ -15,34 +15,35 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
         body { background: var(--bg-black); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        .header { padding: 10px 15px; text-align: center; background: var(--card-dark); border-bottom: 1px solid #222; }
+        .header { padding: 10px 15px; text-align: center; background: var(--card-dark); border-bottom: 1px solid #222; position: relative; }
         .mode-selector { display: flex; gap: 8px; margin-top: 8px; justify-content: center; }
         .mode-btn { flex: 1; max-width: 140px; padding: 10px; border-radius: 10px; border: 1px solid #333; background: #222; color: #888; font-weight: bold; font-size: 0.85rem; }
         .mode-btn.active { background: var(--main-green); color: white; }
 
-        /* خيار التواصل الصغير */
-        .contact-trigger { display: block; margin-top: 10px; color: #444; font-size: 0.7rem; text-decoration: none; text-align: center; }
+        /* رابط التواصل الصغير جداً تحت الأزرار */
+        .contact-trigger { display: inline-block; margin-top: 10px; color: #444; font-size: 0.7rem; text-decoration: none; border-bottom: 1px solid #222; padding-bottom: 2px; }
 
-        .main-display { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .intent-area { font-size: 0.85rem; color: #00d4ff; text-align: center; padding: 0 20px; min-height: 2.5rem; font-weight: bold; }
-        .current-task { font-size: 1.6rem; color: #ff9800; text-align: center; padding: 0 25px; min-height: 4rem; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+        .main-display { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 20px; }
+        .intent-area { font-size: 0.85rem; color: #00d4ff; text-align: center; padding: 0 20px; min-height: 2.2rem; font-weight: bold; }
+        .current-task { font-size: 1.6rem; color: #ff9800; text-align: center; padding: 0 25px; min-height: 4.5rem; display: flex; align-items: center; justify-content: center; line-height: 1.2; margin-bottom: 10px; }
 
-        .counter-container { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
-        .counter-number { font-size: 7.5rem; font-family: 'Consolas', monospace; color: var(--main-green); font-weight: bold; z-index: 2; }
+        .counter-container { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+        .counter-number { font-size: 8rem; font-family: 'Consolas', monospace; color: var(--main-green); font-weight: bold; z-index: 2; }
         .progress-svg { position: absolute; width: 100%; height: 100%; transform: rotate(-90deg); }
         .progress-svg circle { fill: none; stroke-width: 8; stroke: #1a1a1a; }
         .progress-svg circle.bar { stroke: var(--main-green); stroke-dasharray: 816; stroke-dashoffset: 816; transition: 0.3s; stroke-linecap: round; }
 
-        .footer-info { font-size: 0.9rem; color: #333; font-weight: bold; margin-bottom: 20px; }
+        .footer-info { font-size: 0.9rem; color: #333; font-weight: bold; margin-bottom: 15px; min-height: 1.2rem; }
 
-        /* منطقة الأزرار */
-        .controls-area { display: flex; gap: 15px; justify-content: center; align-items: center; width: 100%; min-height: 60px; }
-        .btn-circle { background: #1a1a1a; border: 1px solid #222; color: #666; width: 55px; height: 55px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        /* منطقة الأزرار بالترتيب الجديد */
+        .controls-area { display: flex; gap: 15px; justify-content: center; align-items: center; width: 100%; min-height: 70px; }
+        .btn-circle { background: #151515; border: 1px solid #222; color: #555; width: 60px; height: 60px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
         .btn-reset { color: #5e1d19; }
         .btn-minus { color: #5e5419; }
+        .btn-circle:active { background: #222; transform: scale(0.95); }
 
-        /* قائمة التواصل */
-        #contactModal { position: fixed; bottom: -100%; left: 0; width: 100%; background: #111; padding: 25px; border-radius: 20px 20px 0 0; transition: 0.4s; z-index: 1000; display: flex; justify-content: space-around; border-top: 1px solid #333; }
+        /* القائمة المنبثقة للتواصل */
+        #contactModal { position: fixed; bottom: -100%; left: 0; width: 100%; background: #111; padding: 30px 20px; border-radius: 25px 25px 0 0; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; display: flex; justify-content: space-around; border-top: 2px solid #222; }
         #contactModal.show { bottom: 0; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; z-index: 999; }
     </style>
@@ -50,12 +51,12 @@
 <body onclick="handleGlobalTap(event)">
 
     <div class="header">
-        <div style="font-weight: bold; color: var(--main-green);">السبحة المحمدية</div>
+        <div style="font-weight: bold; color: var(--main-green); font-size: 1.1rem;">السبحة المحمدية</div>
         <div class="mode-selector">
             <button id="freeMode" class="mode-btn active" onclick="setMode('free', event)">عداد حر</button>
             <button id="wordMode" class="mode-btn" onclick="setMode('word', event)">الورد المحمدي</button>
         </div>
-        <a href="#" class="contact-trigger" onclick="openMenu(event)">خيارات التواصل والدعم</a>
+        <a href="#" class="contact-trigger" onclick="openMenu(event)">تواصل معنا / اقتراحات</a>
     </div>
 
     <div class="main-display">
@@ -83,13 +84,13 @@
     <div id="overlay" class="overlay" onclick="closeMenu()"></div>
     <div id="contactModal">
         <a href="https://wa.me/201012459612" style="text-align:center; color:white; text-decoration:none;">
-            <i class="fab fa-whatsapp" style="font-size:2rem; color:#25D366;"></i><br><small>واتساب</small>
+            <i class="fab fa-whatsapp" style="font-size:2.2rem; color:#25D366;"></i><br><span style="font-size:0.8rem; margin-top:5px; display:block;">واتساب</span>
         </a>
         <a href="tel:01012459612" style="text-align:center; color:white; text-decoration:none;">
-            <i class="fas fa-phone-alt" style="font-size:2rem; color:#00d4ff;"></i><br><small>اتصال</small>
+            <i class="fas fa-phone-alt" style="font-size:2.2rem; color:#00d4ff;"></i><br><span style="font-size:0.8rem; margin-top:5px; display:block;">اتصال</span>
         </a>
-        <a href="https://wa.me/201012459612?text=اقتراح بخصوص السبحة:" style="text-align:center; color:white; text-decoration:none;">
-            <i class="fas fa-lightbulb" style="font-size:2rem; color:#ff9800;"></i><br><small>اقتراح</small>
+        <a href="https://wa.me/201012459612?text=لدي اقتراح بخصوص التطبيق:" style="text-align:center; color:white; text-decoration:none;">
+            <i class="fas fa-lightbulb" style="font-size:2.2rem; color:#ff9800;"></i><br><span style="font-size:0.8rem; margin-top:5px; display:block;">اقتراح</span>
         </a>
     </div>
 
@@ -110,10 +111,10 @@
             { name: "الصلوات المحمدية", target: 3 }
         ];
 
-        let count = 0, mode = 'free', currentIdx = 0, freeTask = "سبحان الله", canTap = true;
+        let count = 0, mode = 'free', currentIdx = 0, freeTask = "اضغط لتغيير الذكر", canTap = true;
 
         function handleGlobalTap(e) {
-            if(!canTap || e.target.closest('.header') || e.target.closest('#contactModal') || e.target.closest('.controls-area')) return;
+            if(!canTap || e.target.closest('.header') || e.target.closest('#contactModal') || e.target.closest('.controls-area') || e.target.closest('.current-task')) return;
             count++;
             if (navigator.vibrate) navigator.vibrate(40);
             if(mode === 'word') {
@@ -131,7 +132,7 @@
             document.getElementById('intent').innerText = isWord ? (tasks[currentIdx].intent || "") : "";
             document.getElementById('progressInfo').innerText = isWord ? `خطوة ${currentIdx + 1} | مطلوب: ${tasks[currentIdx].target}` : "";
             
-            // التحكم في ظهور الأزرار
+            // في العداد الحر: إخفاء الكل ما عدا الناقص
             document.getElementById('btnPrev').style.display = isWord ? 'flex' : 'none';
             document.getElementById('btnNext').style.display = isWord ? 'flex' : 'none';
             document.getElementById('btnRes').style.display = isWord ? 'flex' : 'none';
@@ -145,11 +146,12 @@
 
         function openMenu(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('contactModal').classList.add('show'); document.getElementById('overlay').style.display = 'block'; }
         function closeMenu() { document.getElementById('contactModal').classList.remove('show'); document.getElementById('overlay').style.display = 'none'; }
+        
         function nextTask() { if(currentIdx < tasks.length - 1) { currentIdx++; count = 0; updateProgress(0); updateUI(); } else { alert("تم الورد"); setMode('free', {stopPropagation:()=>{}}); } }
         function prevTask(e) { e.stopPropagation(); if(currentIdx > 0) { currentIdx--; count = 0; updateProgress(0); updateUI(); } }
         function skipTask(e) { e.stopPropagation(); nextTask(); }
         function decrement(e) { e.stopPropagation(); if(count > 0) count--; updateUI(); }
-        function resetAll(e) { e.stopPropagation(); if(confirm("تصفير؟")) { count = 0; updateUI(); updateProgress(0); } }
+        function resetAll(e) { e.stopPropagation(); if(confirm("تصفير العداد؟")) { count = 0; updateUI(); updateProgress(0); } }
         function updateProgress(offset) { document.getElementById('progressBar').style.strokeDashoffset = 816 - offset; }
         function handleTaskClick(e) { if(mode === 'free') { e.stopPropagation(); let n = prompt("تغيير الذكر:", freeTask); if(n) { freeTask = n; count = 0; updateUI(); } } }
 
