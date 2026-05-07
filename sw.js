@@ -1,35 +1,45 @@
-const CACHE_NAME = 'subha-v4';
+const CACHE_NAME = 'subha-ultimate-v5'; // غيرنا الاسم عشان يمسح القديم
 const assets = [
-  '/',
-  'index.html',
+  './',
+  './index.html',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];
 
-// تثبيت الـ Service Worker وتخزين الملفات
+// مرحلة التثبيت: خزن الملفات في ذاكرة الموبايل
 self.addEventListener('install', e => {
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
       return cache.addAll(assets);
     })
   );
-  self.skipWaiting();
 });
 
-// تفعيل وتحويل السيطرة فوراً
+// مرحلة التفعيل: امسح أي نسخة قديمة معلقة
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys => {
-      return Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)));
+      return Promise.all(
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      );
     })
   );
   self.clients.claim();
 });
 
-// استراتيجية (الذاكرة أولاً ثم الشبكة) - دي اللي هتحل المشكلة
+// أهم مرحلة: سحب الملفات
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(response => {
-      return response || fetch(e.request);
+    // دور في المخزن (Cache) الأول
+    caches.match(e.request, {ignoreSearch: true}).then(response => {
+      // لو لقيته في المخزن افتحه فوراً (حتى لو مفيش نت)
+      // لو مش موجود، روح هاته من النت
+      return response || fetch(e.request).catch(() => {
+        // لو مفيش نت خالص والملف مش مخزن، افتح الصفحة الرئيسية
+        if (e.request.mode === 'navigate') {
+          return caches.match('./index.html');
+        }
+      });
     })
   );
 });
