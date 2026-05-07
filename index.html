@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>السبحة المحمدية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --main-green: #4CAF50; --bg-black: #0a0a0a; --card-dark: #161616; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { background: var(--bg-black); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .header { padding: 15px; text-align: center; background: var(--card-dark); border-bottom: 1px solid #222; }
+        .mode-selector { display: flex; gap: 10px; margin-top: 10px; }
+        .mode-btn { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #333; background: #222; color: #888; font-size: 0.9rem; }
+        .mode-btn.active { background: var(--main-green); color: white; border-color: var(--main-green); }
+        .counter-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .counter-number { font-size: 7rem; font-family: 'Consolas', monospace; color: var(--main-green); font-weight: bold; z-index: 2; margin: 10px 0; }
+        .current-task { font-size: 1.4rem; color: #ff9800; text-align: center; padding: 0 20px; min-height: 4rem; display: flex; align-items: center; cursor: pointer; }
+        .intent-area { font-size: 0.9rem; color: #00d4ff; text-align: center; padding: 5px 20px; min-height: 2rem; }
+        .progress-svg { position: absolute; width: 280px; height: 280px; transform: rotate(-90deg); }
+        .progress-svg circle { fill: none; stroke-width: 8; stroke: #222; }
+        .progress-svg circle.bar { stroke: var(--main-green); stroke-dasharray: 816; stroke-dashoffset: 816; transition: 0.3s; stroke-linecap: round; }
+        .bottom-nav { background: var(--card-dark); padding: 15px; display: flex; justify-content: space-around; border-top: 1px solid #222; }
+        .nav-btn { background: #222; border: none; color: white; width: 45px; height: 45px; border-radius: 50%; font-size: 1rem; }
+        .nav-btn.reset { color: #f44336; }
+        .footer-info { font-size: 0.8rem; color: #555; margin-top: 10px; }
+    </style>
+</head>
+<body onclick="handleTap(event)">
+
+    <div class="header">
+        <div style="font-weight: bold; color: var(--main-green);">السبحة المحمدية</div>
+        <div class="mode-selector">
+            <div id="freeMode" class="mode-btn active" onclick="setMode('free')">عداد حر</div>
+            <div id="wordMode" class="mode-btn" onclick="setMode('word')">الورد الكامل</div>
+        </div>
+    </div>
+
+    <div class="counter-area">
+        <div id="intent" class="intent-area"></div>
+        <div id="taskTitle" class="current-task" onclick="customizeFree(event)">اضغط لتخصيص الذكر</div>
+        <svg class="progress-svg">
+            <circle cx="140" cy="140" r="130" />
+            <circle id="progressBar" class="bar" cx="140" cy="140" r="130" />
+        </svg>
+        <div id="mainCounter" class="counter-number">0</div>
+        <div id="progressInfo" class="footer-info"></div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-btn" onclick="decrement(event)"><i class="fas fa-minus"></i></button>
+        <button class="nav-btn reset" onclick="resetAll(event)"><i class="fas fa-undo"></i></button>
+        <button id="prevBtn" class="nav-btn" onclick="prevTask(event)" style="display:none;"><i class="fas fa-backward"></i></button>
+        <button id="skipBtn" class="nav-btn" onclick="skipTask(event)" style="display:none;"><i class="fas fa-forward"></i></button>
+    </div>
+
+    <script>
+        const صلوات = "الصلوات المحمدية";
+        const tasks = [
+            { name: صلوات, target: 3, intent: "نويت قراءة الورد - بسم الله الرحمن الرحيم" },
+            { name: "الفواتح السبع", target: 7 },
+            { name: صلوات, target: 1 },
+            { name: "استغفر الله العظيم هو التواب الرحيم", target: 100 },
+            { name: صلوات, target: 1 },
+            { name: "لا إله إلا الله", target: 100 },
+            { name: صلوات, target: 1 },
+            { name: "الله", target: 100 },
+            { name: صلوات, target: 1 },
+            { name: "هو", target: 100 },
+            { name: صلوات, target: 1 },
+            { name: "حي", target: 100 },
+            { name: صلوات, target: 1 },
+            { name: "حق", target: 100 },
+            { name: صلوات, target: 1 },
+            { name: "قيوم", target: 100 },
+            { name: صلوات, target: 1 },
+            { name: "قهار", target: 100 },
+            { name: صلوات, target: 1 },
+            { name: "وهاب", target: 100 },
+            { name: صلوات, target: 1 },
+            { name: "اللهم صلِّ على سيدنا محمد وعلى آله وصحبه وسلم", target: 100 },
+            { name: صلوات, target: 3 },
+            { name: "الفواتح السبع", target: 7 },
+            { name: صلوات, target: 3 }
+        ];
+
+        let count = 0, mode = 'free', currentIdx = 0, freeTask = "اضغط لتخصيص الذكر";
+
+        function handleTap(e) {
+            if(e.target.closest('.header') || e.target.closest('.bottom-nav')) return;
+            count++;
+            if (navigator.vibrate) navigator.vibrate(40); 
+            if(mode === 'word') {
+                let t = tasks[currentIdx];
+                updateProgress((count / t.target) * 816);
+                if(count >= t.target) nextTask();
+            }
+            updateUI();
+        }
+
+        function updateProgress(offset) { document.getElementById('progressBar').style.strokeDashoffset = 816 - offset; }
+
+        function updateUI() {
+            document.getElementById('mainCounter').innerText = count;
+            if(mode === 'word') {
+                let t = tasks[currentIdx];
+                document.getElementById('taskTitle').innerText = t.name;
+                document.getElementById('intent').innerText = t.intent || "";
+                document.getElementById('progressInfo').innerText = `ذكر ${currentIdx + 1} من 25 | المطلوب: ${t.target}`;
+                document.getElementById('skipBtn').style.display = 'block';
+                document.getElementById('prevBtn').style.display = 'block';
+            } else {
+                document.getElementById('taskTitle').innerText = freeTask;
+                document.getElementById('intent').innerText = "";
+                document.getElementById('progressInfo').innerText = "";
+                document.getElementById('skipBtn').style.display = 'none';
+                document.getElementById('prevBtn').style.display = 'none';
+                updateProgress(0);
+            }
+        }
+
+        function customizeFree(e) {
+            if(mode === 'free') {
+                e.stopPropagation();
+                let n = prompt("اكتب الذكر الجديد:", freeTask);
+                if(n) { freeTask = n; count = 0; updateUI(); }
+            }
+        }
+
+        function setMode(m) { mode = m; count = 0; currentIdx = 0; 
+            document.getElementById('freeMode').classList.toggle('active', m === 'free');
+            document.getElementById('wordMode').classList.toggle('active', m === 'word');
+            updateUI(); 
+        }
+
+        function nextTask() {
+            if(currentIdx < tasks.length - 1) { currentIdx++; count = 0; updateProgress(0); }
+            else { alert("تم الورد بفضل الله"); setMode('free'); }
+        }
+
+        function prevTask(e) { e.stopPropagation(); if(currentIdx > 0) { currentIdx--; count = 0; updateProgress(0); updateUI(); } }
+        function skipTask(e) { e.stopPropagation(); nextTask(); updateUI(); }
+        function decrement(e) { e.stopPropagation(); if(count > 0) count--; updateUI(); }
+        function resetAll(e) { e.stopPropagation(); if(confirm("تصفير؟")) { count = 0; updateUI(); } }
+    </script>
+</body>
+</html>
