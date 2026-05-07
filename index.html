@@ -101,7 +101,7 @@
         </div>
     </div>
 
-    <script>
+   <script>
         const صلوات = "الصلوات المحمدية";
         const tasks = [
             { name: صلوات, target: 3, intent: "اللهم إني نويت قراءة الورد - بسم الله الرحمن الرحيم" },
@@ -168,7 +168,25 @@
         function resetAll(e) { e.stopPropagation(); if(confirm("تصفير؟")) { count = 0; updateUI(); updateProgress(0); } }
         function updateProgress(offset) { document.getElementById('progressBar').style.strokeDashoffset = 816 - offset; }
         function handleTaskClick(e) { if(mode === 'free') { e.stopPropagation(); let n = prompt("تغيير الذكر:", freeTask); if(n) { freeTask = n; count = 0; updateUI(); } } }
+        
         window.onload = updateUI;
+
+        // --- ده الجزء الجديد اللي هتضيفه عشان يشتغل أوفلاين ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js?v=5')
+                .then(reg => {
+                    reg.onupdatefound = () => {
+                        const installingWorker = reg.installing;
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                window.location.reload(); 
+                            }
+                        };
+                    };
+                });
+            });
+        }
     </script>
 </body>
 </html>
