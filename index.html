@@ -24,21 +24,20 @@
         .support-link { text-decoration: none; color: #666; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.3s; }
         .support-link i { font-size: 1.1rem; }
         .support-link span { font-size: 0.65rem; font-weight: bold; }
-        .wa i { color: #25D366; } .ph i { color: var(--accent-blue); } .su i { color: #ff9800; }
+        /* تمت إزالة أنماط الواتساب */
+        .ph i { color: var(--accent-blue); } .su i { color: #ff9800; }
         .support-link:active { transform: scale(0.9); }
 
-        /* منطقة العرض الرئيسية - تم رفعها للأعلى وتوسيطها */
         .main-display { 
             flex: 1; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
-            justify-content: flex-start; /* ارفع المحتوى */
-            padding-top: 15vh; /* سيب مسافة للأوضاع والأزرار */
+            justify-content: flex-start; 
+            padding-top: 15vh; 
             position: relative; 
         }
         
-        /* تمركز أكثر دقة للذكر والعداد */
         .wird-wrapper {
             display: flex;
             flex-direction: column;
@@ -73,7 +72,6 @@
             <button id="wordMode" class="mode-btn" onclick="setMode('word', event)">الورد المحمدي</button>
         </div>
         <div class="support-box">
-            <a href="https://wa.me/201012459612" class="support-link wa"><i class="fab fa-whatsapp"></i><span>واتساب</span></a>
             <a href="tel:01012459612" class="support-link ph"><i class="fas fa-phone-alt"></i><span>اتصال</span></a>
             <a href="https://wa.me/201012459612?text=اقتراح:" class="support-link su"><i class="fas fa-lightbulb"></i><span>دعم</span></a>
         </div>
@@ -105,7 +103,6 @@
 
     <script>
         const صلوات = "الصلوات المحمدية";
-        // الورد الـ 25 خطوة الكامل والمصحح (زي مكان)
         const tasks = [
             { name: صلوات, target: 3, intent: "اللهم إني نويت قراءة الورد - بسم الله الرحمن الرحيم" },
             { name: "الفواتح السبع", target: 7 },
