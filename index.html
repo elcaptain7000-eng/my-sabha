@@ -27,7 +27,7 @@
         .counter-number { font-size: 7rem; font-family: 'Consolas', monospace; color: var(--main-green); font-weight: bold; z-index: 2; }
         .progress-svg { position: absolute; width: 100%; height: 100%; transform: rotate(-90deg); }
         .progress-svg circle { fill: none; stroke-width: 10; stroke: #1a1a1a; }
-        .progress-svg circle.bar { stroke: var(--main-green); stroke-dasharray: 816; stroke-dashoffset: 816; transition: 0.3s; stroke-linecap: round; }
+        .progress-svg circle.bar { stroke: var(--main-green); stroke-dasharray: 816; stroke-dashoffset: 816; transition: 0.2s; stroke-linecap: round; }
         .footer-info { font-size: 1rem; color: #666; font-weight: bold; margin-bottom: 15px; min-height: 1.5rem; }
         .task-controls { display: flex; gap: 40px; margin-bottom: 10px; }
         .control-btn { background: #222; border: 1px solid #444; color: #bbb; width: 55px; height: 55px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
@@ -99,15 +99,28 @@
         ];
 
         let count = 0, mode = 'free', currentIdx = 0, freeTask = "اضغط لتخصيص الذكر";
+        let canTap = true; // المتغير ده هو اللي هيتحكم في الأمان
 
         function handleGlobalTap(e) {
+            // لو الأمان شغال (canTap = false)، اخرج وما تحسبش الضغطة
+            if (!canTap) return;
+
             if(e.target.closest('.header') || e.target.closest('.bottom-nav') || e.target.closest('.current-task') || e.target.closest('.task-controls')) return;
+            
             count++;
             if (navigator.vibrate) navigator.vibrate(45); 
+
             if(mode === 'word') {
                 let t = tasks[currentIdx];
                 updateProgress((Math.min(count, t.target) / t.target) * 816);
-                if(count >= t.target) setTimeout(nextTask, 200);
+                
+                if(count >= t.target) {
+                    canTap = false; // اقفل اللمس فوراً
+                    setTimeout(() => {
+                        nextTask();
+                        canTap = true; // افتح اللمس تاني بعد نص ثانية
+                    }, 500); 
+                }
             }
             updateUI();
         }
@@ -139,7 +152,9 @@
         }
 
         function nextTask() {
-            if(currentIdx < tasks.length - 1) { currentIdx++; count = 0; updateProgress(0); updateUI(); }
+            if(currentIdx < tasks.length - 1) { 
+                currentIdx++; count = 0; updateProgress(0); updateUI(); 
+            }
             else { alert("تم الورد المحمدي بفضل الله"); setMode('free'); }
         }
 
