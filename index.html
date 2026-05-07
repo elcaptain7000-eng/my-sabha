@@ -12,56 +12,58 @@
         
         body { background: var(--bg-black); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* الجزء العلوي: العنوان والمود */
-        .header { padding: 10px 15px; text-align: center; background: var(--card-dark); z-index: 10; border-bottom: 1px solid #222; }
-        .mode-selector { display: flex; gap: 8px; margin-top: 8px; }
-        .mode-btn { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #333; background: #222; color: #888; font-weight: bold; font-size: 0.9rem; }
+        .header { padding: 12px 15px; text-align: center; background: var(--card-dark); z-index: 10; border-bottom: 1px solid #222; }
+        .mode-selector { display: flex; gap: 10px; margin-top: 10px; }
+        .mode-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #333; background: #222; color: #888; font-weight: bold; font-size: 0.95rem; }
         .mode-btn.active { background: var(--main-green); color: white; border-color: var(--main-green); }
 
-        /* منطقة العرض الرئيسية: تم تقليل المسافات لرفع الدائرة */
-        .main-display { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; position: relative; padding-top: 10px; }
-
-        /* النية: تم تعديل النص وزيادة الوزن */
-        .intent-area { font-size: 0.9rem; color: #00d4ff; text-align: center; padding: 0 15px; min-height: 2rem; font-weight: bold; margin-bottom: 5px; }
-        
-        /* الذكر: كبرت الخط وفصلته عن الدائرة */
-        .current-task { 
-            font-size: 1.5rem; color: #ff9800; text-align: center; padding: 0 20px; 
-            min-height: 4rem; display: flex; align-items: center; justify-content: center;
-            line-height: 1.3; z-index: 5; margin-bottom: 5px; cursor: pointer;
+        /* منطقة العرض الرئيسية: تم ضبطها لتكون في وسط الشاشة تماماً */
+        .main-display { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; /* سنترت كل حاجة في النص */
+            position: relative; 
+            padding: 20px 0;
         }
 
-        /* حاوية العداد والدائرة: تم تصغير الحجم قليلاً وتصغير الخط */
-        .counter-container { position: relative; width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+        .intent-area { font-size: 0.95rem; color: #00d4ff; text-align: center; padding: 0 20px; min-height: 2.5rem; font-weight: bold; margin-bottom: 15px; line-height: 1.4; }
         
-        .counter-number { font-size: 6rem; font-family: 'Consolas', monospace; color: var(--main-green); font-weight: bold; z-index: 2; }
+        .current-task { 
+            font-size: 1.7rem; color: #ff9800; text-align: center; padding: 0 25px; 
+            min-height: 4.5rem; display: flex; align-items: center; justify-content: center;
+            line-height: 1.4; z-index: 5; margin-bottom: 20px; cursor: pointer;
+        }
+
+        .counter-container { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+        
+        .counter-number { font-size: 7rem; font-family: 'Consolas', monospace; color: var(--main-green); font-weight: bold; z-index: 2; }
 
         .progress-svg { position: absolute; width: 100%; height: 100%; transform: rotate(-90deg); }
-        .progress-svg circle { fill: none; stroke-width: 9; stroke: #1a1a1a; }
-        .progress-svg circle.bar { stroke: var(--main-green); stroke-dasharray: 754; stroke-dashoffset: 754; transition: 0.3s; stroke-linecap: round; }
+        .progress-svg circle { fill: none; stroke-width: 10; stroke: #1a1a1a; }
+        .progress-svg circle.bar { stroke: var(--main-green); stroke-dasharray: 816; stroke-dashoffset: 816; transition: 0.3s; stroke-linecap: round; }
 
-        /* معلومات التقدم: تم تصغيرها وفصلها */
-        .footer-info { font-size: 0.9rem; color: #666; font-weight: bold; margin-bottom: 10px; min-height: 1.2rem;}
+        .footer-info { font-size: 1rem; color: #666; font-weight: bold; margin-bottom: 20px; min-height: 1.5rem; }
 
-        /* أزرار التخطّي والسابق: تحت الدائرة مباشرة */
-        .task-controls { display: flex; gap: 20px; margin-bottom: 15px; z-index: 10; }
-        .control-btn { background: #222; border: 1px solid #333; color: #888; width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
-        .control-btn:active { background: #333; transform: scale(0.95); }
+        /* أزرار التنقل: تم تحسين مكانها وحجمها */
+        .task-controls { display: flex; gap: 30px; margin-bottom: 10px; z-index: 10; }
+        .control-btn { background: #222; border: 1px solid #444; color: #bbb; width: 55px; height: 55px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+        .control-btn:active { background: var(--main-green); color: white; transform: scale(0.9); }
 
-        /* منطقة التحكم السفلية: الناقص والتصفير */
-        .bottom-nav { background: var(--card-dark); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #222; }
-        .nav-btn { background: #252525; border: 1px solid #333; color: white; width: 50px; height: 50px; border-radius: 12px; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; }
-        .nav-btn:active { background: #333; transform: scale(0.95); }
+        .bottom-nav { background: var(--card-dark); padding: 18px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #222; }
+        .nav-btn { background: #252525; border: 1px solid #333; color: white; width: 55px; height: 55px; border-radius: 15px; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
+        .nav-btn:active { background: #444; transform: scale(0.95); }
         .nav-btn.reset { color: #f44336; }
     </style>
 </head>
 <body onclick="handleGlobalTap(event)">
 
     <div class="header">
-        <div style="font-weight: bold; font-size: 1rem; color: var(--main-green);">السبحة المحمدية</div>
+        <div style="font-weight: bold; font-size: 1.1rem; color: var(--main-green);">السبحة المحمدية</div>
         <div class="mode-selector">
             <button id="freeMode" class="mode-btn active" onclick="setMode('free', event)">عداد حر</button>
-            <button id="wordMode" class="mode-btn" onclick="setMode('word', event)">الورد الكامل</button>
+            <button id="wordMode" class="mode-btn" onclick="setMode('word', event)">الورد المحمدي</button>
         </div>
     </div>
 
@@ -72,8 +74,8 @@
 
         <div class="counter-container">
             <svg class="progress-svg">
-                <circle cx="130" cy="130" r="120" />
-                <circle id="progressBar" class="bar" cx="130" cy="130" r="120" />
+                <circle cx="140" cy="140" r="130" />
+                <circle id="progressBar" class="bar" cx="140" cy="140" r="130" />
             </svg>
             <div id="mainCounter" class="counter-number">0</div>
         </div>
@@ -93,7 +95,6 @@
 
     <script>
         const صلوات = "الصلوات المحمدية";
-        // تم تعديل نص النية في الذكر الأول
         const tasks = [
             { name: صلوات, target: 3, intent: "اللهم إني نويت قراءة الورد - بسم الله الرحمن الرحيم" },
             { name: "الفواتح السبع", target: 7 },
@@ -125,7 +126,6 @@
         let count = 0, mode = 'free', currentIdx = 0, freeTask = "اضغط هنا لتخصيص الذكر";
 
         function handleGlobalTap(e) {
-            // منع التسبيح لو الضغطة على أي زرار أو منطقة نصية تفاعلية
             if(e.target.closest('.header') || e.target.closest('.bottom-nav') || e.target.closest('.current-task') || e.target.closest('.task-controls')) return;
             
             count++;
@@ -133,7 +133,7 @@
             
             if(mode === 'word') {
                 let t = tasks[currentIdx];
-                updateProgress((Math.min(count, t.target) / t.target) * 754);
+                updateProgress((Math.min(count, t.target) / t.target) * 816);
                 if(count >= t.target) {
                     setTimeout(nextTask, 200);
                 }
@@ -154,7 +154,7 @@
         }
 
         function updateProgress(offset) {
-            document.getElementById('progressBar').style.strokeDashoffset = 754 - offset;
+            document.getElementById('progressBar').style.strokeDashoffset = 816 - offset;
         }
 
         function updateUI() {
@@ -170,7 +170,6 @@
             } else {
                 document.getElementById('taskTitle').innerText = freeTask;
                 document.getElementById('intent').innerText = "";
-                // تم حذف نص "العداد الحر" من هنا ليكون التصميم أنقى
                 document.getElementById('progressInfo').innerText = "";
                 taskControls.style.visibility = 'hidden';
                 updateProgress(0);
@@ -189,9 +188,9 @@
         function nextTask() {
             if(currentIdx < tasks.length - 1) {
                 currentIdx++; count = 0; updateProgress(0); updateUI();
-                if (navigator.vibrate) navigator.vibrate([100, 50, 100]); // اهتزاز مميز للنقل
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]); 
             } else {
-                alert("تم الورد بفضل الله");
+                alert("تم الورد المحمدي بفضل الله");
                 setMode('free');
             }
         }
