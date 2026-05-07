@@ -4,107 +4,184 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0a0a0a">
     <title>السبحة المحمدية</title>
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <style>
         :root { --main-green: #4CAF50; --bg-black: #0a0a0a; --card-dark: #161616; --accent-blue: #00d4ff; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
-        body { background: var(--bg-black); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-
-        .header { padding: 10px 15px; text-align: center; background: var(--card-dark); border-bottom: 1px solid #222; }
-        .mode-selector { display: flex; gap: 8px; margin-top: 8px; justify-content: center; }
-        .mode-btn { flex: 1; max-width: 140px; padding: 10px; border-radius: 10px; border: 1px solid #333; background: #222; color: #888; font-weight: bold; font-size: 0.85rem; }
-        .mode-btn.active { background: var(--main-green); color: white; border-color: var(--main-green); }
-
-        .support-box { display: flex; justify-content: center; gap: 25px; margin: 12px auto 5px; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 12px; width: fit-content; }
-        .support-link { text-decoration: none; color: #666; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: 0.3s; }
-        .support-link i { font-size: 1.1rem; }
-        .support-link span { font-size: 0.65rem; font-weight: bold; }
-        /* تمت إزالة أنماط الواتساب */
-        .ph i { color: var(--accent-blue); } .su i { color: #ff9800; }
-        .support-link:active { transform: scale(0.9); }
-
-        .main-display { 
-            flex: 1; 
+        
+        body { 
+            background: var(--bg-black); 
+            color: white; 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            height: 100vh; 
             display: flex; 
             flex-direction: column; 
-            align-items: center; 
-            justify-content: flex-start; 
-            padding-top: 15vh; 
-            position: relative; 
+            overflow: hidden; 
+        }
+
+        /* المنيو العلوي - الزرار في اليسار (اللمة التانية) */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background: var(--card-dark);
+            border-bottom: 1px solid #222;
+            position: relative;
+        }
+
+        #menuBtn { 
+            cursor: pointer; 
+            font-size: 1.5rem; 
+            color: white; 
+            padding: 5px;
+            position: absolute;
+            left: 15px; /* تثبيت الزرار في أقصى اليسار */
+        }
+
+        .app-title { 
+            flex-grow: 1; 
+            text-align: center; 
+            font-weight: bold; 
+            color: var(--main-green);
+        }
+
+        /* حاوية الأزرار الثلاثة */
+        .mode-selector { 
+            display: flex; 
+            gap: 5px; 
+            padding: 10px; 
+            justify-content: center; 
+            background: #111;
+        }
+
+        .mode-btn { 
+            flex: 1; 
+            padding: 12px 2px; 
+            border-radius: 8px; 
+            border: 1px solid #333; 
+            background: #222; 
+            color: #888; 
+            font-weight: bold; 
+            font-size: 0.75rem; 
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .mode-btn.active { background: var(--main-green); color: white; border-color: var(--main-green); }
+
+        /* القائمة الجانبية - تفتح من اليسار (اللمة التانية) */
+        .sidebar { 
+            height: 100%; 
+            width: 0; 
+            position: fixed; 
+            z-index: 2000; 
+            top: 0; 
+            left: 0; /* تفتح من اليسار */
+            background-color: #111; 
+            overflow-x: hidden; 
+            transition: 0.5s; 
+            padding-top: 60px; 
+            text-align: right; 
+            box-shadow: 2px 0 10px rgba(0,0,0,0.5);
         }
         
-        .wird-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
+        .sidebar-content a { padding: 15px 25px; text-decoration: none; font-size: 1.1rem; color: #818181; display: block; border-bottom: 1px solid #222; }
+        .sidebar-content a i { margin-left: 10px; color: var(--main-green); }
+        
+        /* زرار القفل داخل المنيو */
+        .sidebar .closebtn { position: absolute; top: 10px; right: 25px; font-size: 36px; color: #fff; text-decoration: none; }
+        
+        #overlay { display: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; background-color: rgba(0,0,0,0.7); z-index: 1500; }
 
-        .intent-area { font-size: 0.85rem; color: var(--accent-blue); text-align: center; padding: 0 20px; min-height: 2.2rem; font-weight: bold; margin-bottom: 5px; }
-        .current-task { font-size: 1.6rem; color: #ff9800; text-align: center; padding: 0 25px; min-height: 4rem; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+        /* منطقة العرض */
+        .main-display { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .intent-area { font-size: 0.85rem; color: var(--accent-blue); text-align: center; padding: 0 20px; min-height: 2.2rem; font-weight: bold; }
+        .current-task { font-size: 1.5rem; color: #ff9800; text-align: center; padding: 0 25px; min-height: 4rem; display: flex; align-items: center; justify-content: center; }
 
-        .counter-container { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+        .counter-container { position: relative; width: 280px; height: 280px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
         .counter-number { font-size: 8rem; font-family: 'Consolas', monospace; color: var(--main-green); font-weight: bold; z-index: 2; }
         .progress-svg { position: absolute; width: 100%; height: 100%; transform: rotate(-90deg); }
         .progress-svg circle { fill: none; stroke-width: 8; stroke: #1a1a1a; }
         .progress-svg circle.bar { stroke: var(--main-green); stroke-dasharray: 816; stroke-dashoffset: 816; transition: 0.3s; stroke-linecap: round; }
 
-        .footer-info { font-size: 0.9rem; color: #333; font-weight: bold; margin-bottom: 15px; }
-
-        .controls-row { display: flex; gap: 12px; justify-content: center; align-items: center; width: 100%; min-height: 70px; margin-top: 10px; }
-        .btn-circle { background: #151515; border: 1px solid #252525; color: #666; width: 58px; height: 58px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
-        .btn-circle:active { background: #222; transform: scale(0.9); }
-        .btn-reset { color: #8b2d26; }
-        .btn-minus { color: #8b7d26; }
+        .footer-info { font-size: 0.9rem; color: #444; font-weight: bold; margin-bottom: 10px; }
+        .controls-row { display: flex; gap: 15px; justify-content: center; align-items: center; padding-bottom: 30px; }
+        .btn-circle { background: #151515; border: 1px solid #252525; color: #666; width: 60px; height: 60px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
     </style>
 </head>
 <body onclick="handleGlobalTap(event)">
 
-    <div class="header">
-        <div style="font-weight: bold; color: var(--main-green);">السبحة المحمدية</div>
-        <div class="mode-selector">
-            <button id="freeMode" class="mode-btn active" onclick="setMode('free', event)">عداد حر</button>
-            <button id="wordMode" class="mode-btn" onclick="setMode('word', event)">الورد المحمدي</button>
-        </div>
-        <div class="support-box">
-            <a href="tel:01012459612" class="support-link ph"><i class="fas fa-phone-alt"></i><span>اتصال</span></a>
-            <a href="https://wa.me/201012459612?text=لدي اقتراح بخصوص التطبيق::" class="support-link su"><i class="fas fa-lightbulb"></i><span>دعم</span></a>
+    <div class="top-bar">
+        <div id="menuBtn" onclick="toggleMenu(event)"><i class="fas fa-bars"></i></div>
+        <div class="app-title">السبحة المحمدية</div>
+    </div>
+
+    <div class="mode-selector">
+        <button id="freeMode" class="mode-btn active" onclick="setMode('free', event)">عداد حر</button>
+        <button id="muridMode" class="mode-btn" onclick="setMode('murid', event)">ورد المريد والخدمة</button>
+        <button id="supervisorMode" class="mode-btn" onclick="setMode('supervisor', event)">ورد المشرف</button>
+    </div>
+
+    <div id="sidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="toggleMenu(event)">&times;</a>
+        <div class="sidebar-content">
+            <a href="faq.html"><i class="fas fa-question-circle"></i> الأسئلة الشائعة</a>
+            <a href="sessions.html"><i class="fas fa-calendar-alt"></i> الجلسات الشهرية</a>
+            <a href="commandments.html"><i class="fas fa-scroll"></i> من وصايا سيدنا الإمام</a>
+            <a href="events.html"><i class="fas fa-star"></i> جدول الاحتفالات</a>
+            <a href="regions.html"><i class="fas fa-map-marker-alt"></i> المناطق</a>
+            <a href="support.html"><i class="fas fa-headset"></i> للمقترحات والدعم</a>
         </div>
     </div>
+
+    <div id="overlay" onclick="toggleMenu(event)"></div>
 
     <div class="main-display">
-        <div class="wird-wrapper">
-            <div id="intent" class="intent-area"></div>
-            <div id="taskTitle" class="current-task" onclick="handleTaskClick(event)"></div>
+        <div id="intent" class="intent-area"></div>
+        <div id="taskTitle" class="current-task" onclick="handleTaskClick(event)"></div>
 
-            <div class="counter-container">
-                <svg class="progress-svg">
-                    <circle cx="140" cy="140" r="130" />
-                    <circle id="progressBar" class="bar" cx="140" cy="140" r="130" />
-                </svg>
-                <div id="mainCounter" class="counter-number">0</div>
-            </div>
-
-            <div id="progressInfo" class="footer-info"></div>
+        <div class="counter-container">
+            <svg class="progress-svg">
+                <circle cx="140" cy="140" r="130" />
+                <circle id="progressBar" class="bar" cx="140" cy="140" r="130" />
+            </svg>
+            <div id="mainCounter" class="counter-number">0</div>
         </div>
 
-        <div id="controlsRow" class="controls-row">
-            <button id="btnPrev" class="btn-circle" onclick="prevTask(event)"><i class="fas fa-chevron-right"></i></button>
-            <button id="btnRes" class="btn-circle btn-reset" onclick="resetAll(event)"><i class="fas fa-undo"></i></button>
-            <button id="btnMin" class="btn-circle btn-minus" onclick="decrement(event)"><i class="fas fa-minus"></i></button>
-            <button id="btnNext" class="btn-circle" onclick="skipTask(event)"><i class="fas fa-chevron-left"></i></button>
+        <div id="progressInfo" class="footer-info"></div>
+
+        <div class="controls-row">
+            <button id="btnPrev" class="btn-circle" style="visibility: hidden;" onclick="prevTask(event)"><i class="fas fa-chevron-right"></i></button>
+            <button class="btn-circle" style="color: #8b2d26;" onclick="resetAll(event)"><i class="fas fa-undo"></i></button>
+            <button class="btn-circle" style="color: #8b7d26;" onclick="decrement(event)"><i class="fas fa-minus"></i></button>
+            <button id="btnNext" class="btn-circle" style="visibility: hidden;" onclick="skipTask(event)"><i class="fas fa-chevron-left"></i></button>
         </div>
     </div>
 
-   <script>
+    <script>
         const صلوات = "الصلوات المحمدية";
-        const tasks = [
-            { name: صلوات, target: 3, intent: "اللهم إني نويت قراءة الورد - بسم الله الرحمن الرحيم" },
+        
+        const tasksMurid = [
+            { name: صلوات, target: 3, intent: "بسم الله الرحمن الرحيم - اللهم اني نويت قراءة الورد " },
+            { name: "الفواتح السبع", target: 7 },
+            { name: صلوات, target: 1 },
+            { name: "استغفر الله العظيم هو التواب الرحيم", target: 100 },
+            { name: صلوات, target: 1 },
+            { name: "لا إله إلا الله", target: 100 },
+            { name: صلوات, target: 1 },
+            { name: "اللهم صلِّ على سيدنا محمد وعلى آله وصحبه وسلم", target: 100 },
+            { name: صلوات, target: 3 },
+            { name: "الفواتح السبع", target: 7 },
+            { name: صلوات, target: 3 }
+        ];
+
+        const tasksSupervisor = [
+            { name: صلوات, target: 3, intent: "بسم الله الرحمن الرحيم - اللهم اني نويت قراءة الورد" },
             { name: "الفواتح السبع", target: 7 },
             { name: صلوات, target: 1 },
             { name: "استغفر الله العظيم هو التواب الرحيم", target: 100 },
@@ -133,60 +210,72 @@
 
         let count = 0, mode = 'free', currentIdx = 0, freeTask = "اضغط لتغيير الذكر", canTap = true;
 
+        function toggleMenu(e) {
+            if(e) e.stopPropagation();
+            const s = document.getElementById("sidebar"), o = document.getElementById("overlay");
+            const isOpen = s.style.width === "250px";
+            s.style.width = isOpen ? "0" : "250px";
+            o.style.display = isOpen ? "none" : "block";
+        }
+
         function handleGlobalTap(e) {
-            if(!canTap || e.target.closest('.header') || e.target.closest('.controls-row') || e.target.closest('.current-task')) return;
-            count++; if (navigator.vibrate) navigator.vibrate(40);
-            if(mode === 'word') {
-                let t = tasks[currentIdx]; updateProgress((Math.min(count, t.target) / t.target) * 816);
-                if(count >= t.target) { canTap = false; setTimeout(() => { nextTask(); canTap = true; }, 600); }
+            if(!canTap || e.target.closest('#sidebar') || e.target.closest('.top-bar') || e.target.closest('.controls-row') || e.target.closest('.mode-selector') || e.target.closest('.current-task')) return;
+            count++; 
+            if (navigator.vibrate) navigator.vibrate(40);
+            if(mode !== 'free') {
+                const currentTasks = mode === 'murid' ? tasksMurid : tasksSupervisor;
+                let t = currentTasks[currentIdx];
+                updateProgress((Math.min(count, t.target) / t.target) * 816);
+                if(count >= t.target) {
+                    canTap = false;
+                    setTimeout(() => { nextTask(); canTap = true; }, 600);
+                }
             }
             updateUI();
         }
 
         function updateUI() {
             document.getElementById('mainCounter').innerText = count;
-            const isWord = (mode === 'word');
-            document.getElementById('taskTitle').innerText = isWord ? tasks[currentIdx].name : freeTask;
-            document.getElementById('intent').innerText = isWord ? (tasks[currentIdx].intent || "") : "";
-            document.getElementById('progressInfo').innerText = isWord ? `مطلوب: ${tasks[currentIdx].target}` : "";
-            
-            document.getElementById('btnPrev').style.visibility = isWord ? 'visible' : 'hidden';
-            document.getElementById('btnNext').style.visibility = isWord ? 'visible' : 'hidden';
-            document.getElementById('btnRes').style.visibility = isWord ? 'visible' : 'visible';
+            const isFree = (mode === 'free');
+            if (isFree) {
+                document.getElementById('taskTitle').innerText = freeTask;
+                document.getElementById('intent').innerText = "";
+                document.getElementById('progressInfo').innerText = "";
+                updateProgress(0);
+            } else {
+                const currentTasks = mode === 'murid' ? tasksMurid : tasksSupervisor;
+                const t = currentTasks[currentIdx];
+                document.getElementById('taskTitle').innerText = t.name;
+                document.getElementById('intent').innerText = t.intent || "";
+                document.getElementById('progressInfo').innerText = `مطلوب: ${t.target}`;
+            }
+            document.getElementById('btnPrev').style.visibility = isFree ? 'hidden' : 'visible';
+            document.getElementById('btnNext').style.visibility = isFree ? 'hidden' : 'visible';
         }
 
-        function setMode(m, e) { e.stopPropagation(); mode = m; count = 0; currentIdx = 0; 
+        function setMode(m, e) {
+            if(e) e.stopPropagation();
+            mode = m; count = 0; currentIdx = 0; 
             document.getElementById('freeMode').classList.toggle('active', m === 'free');
-            document.getElementById('wordMode').classList.toggle('active', m === 'word');
+            document.getElementById('muridMode').classList.toggle('active', m === 'murid');
+            document.getElementById('supervisorMode').classList.toggle('active', m === 'supervisor');
             updateUI(); updateProgress(0);
         }
 
-        function nextTask() { if(currentIdx < tasks.length - 1) { currentIdx++; count = 0; updateProgress(0); updateUI(); } else { alert("تم الورد"); setMode('free', {stopPropagation:()=>{}}); } }
+        function nextTask() {
+            const currentTasks = mode === 'murid' ? tasksMurid : tasksSupervisor;
+            if(currentIdx < currentTasks.length - 1) {
+                currentIdx++; count = 0; updateProgress(0); updateUI();
+            } else { alert("تم الانتهاء من الورد بفضل الله"); setMode('free'); }
+        }
+
         function prevTask(e) { e.stopPropagation(); if(currentIdx > 0) { currentIdx--; count = 0; updateProgress(0); updateUI(); } }
         function skipTask(e) { e.stopPropagation(); nextTask(); }
         function decrement(e) { e.stopPropagation(); if(count > 0) count--; updateUI(); }
-        function resetAll(e) { e.stopPropagation(); if(confirm("تصفير؟")) { count = 0; updateUI(); updateProgress(0); } }
+        function resetAll(e) { e.stopPropagation(); if(confirm("تصفير العداد؟")) { count = 0; updateUI(); updateProgress(0); } }
         function updateProgress(offset) { document.getElementById('progressBar').style.strokeDashoffset = 816 - offset; }
         function handleTaskClick(e) { if(mode === 'free') { e.stopPropagation(); let n = prompt("تغيير الذكر:", freeTask); if(n) { freeTask = n; count = 0; updateUI(); } } }
-        
         window.onload = updateUI;
-
-        // --- ده الجزء الجديد اللي هتضيفه عشان يشتغل أوفلاين ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js?v=5')
-                .then(reg => {
-                    reg.onupdatefound = () => {
-                        const installingWorker = reg.installing;
-                        installingWorker.onstatechange = () => {
-                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                window.location.reload(); 
-                            }
-                        };
-                    };
-                });
-            });
-        }
     </script>
 </body>
 </html>
