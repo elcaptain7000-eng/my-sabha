@@ -28,10 +28,14 @@
         .page { display: none; height: 100vh; width: 100vw; flex-direction: column; position: absolute; top: 0; left: 0; background: var(--bg-black); }
         .page.active { display: flex; }
 
-        .top-bar { display: flex; align-items: center; padding: 10px 15px; background: var(--card-dark); border-bottom: 1px solid var(--border-color); position: relative; height: 60px; }
+        .top-bar { display: flex; align-items: center; padding: 10px 15px; background: var(--card-dark); border-bottom: 1px solid var(--border-color); position: relative; height: 60px; z-index: 100; }
         #menuBtn, .back-btn { cursor: pointer; font-size: 1.5rem; color: white; padding: 10px; position: absolute; left: 15px; z-index: 10; }
         .back-btn { right: 15px; left: auto; }
-        .app-title { flex-grow: 1; text-align: center; font-weight: bold; color: var(--main-green); }
+        .app-title { flex-grow: 1; text-align: center; font-weight: bold; color: var(--main-green); font-size: 1.1rem; padding: 0 50px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: 0.3s; }
+
+        /* أداة تكبير الخط */
+        .font-control { background: #111; padding: 8px 15px; border-bottom: 1px solid #222; display: flex; align-items: center; gap: 10px; color: #888; font-size: 0.9rem; }
+        .font-control input { flex: 1; accent-color: var(--main-green); cursor: pointer; }
 
         .mode-selector { display: flex; gap: 5px; padding: 10px; justify-content: center; background: #111; }
         .mode-btn { flex: 1; padding: 12px 2px; border-radius: 8px; border: 1px solid #333; background: #222; color: #888; font-weight: bold; font-size: 0.75rem; transition: 0.3s; white-space: nowrap; }
@@ -55,16 +59,19 @@
         .controls-row { display: flex; gap: 15px; justify-content: center; align-items: center; padding-bottom: 30px; }
         .btn-circle { background: #151515; border: 1px solid #252525; color: #666; width: 60px; height: 60px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
 
-        .content-area { flex: 1; display: flex; flex-direction: column; align-items: center; overflow-y: auto; padding: 20px; }
+        /* منطقة المحتوى القابل للقراءة */
+        .content-area { flex: 1; display: flex; flex-direction: column; align-items: center; overflow-y: auto; padding: 20px; scroll-behavior: smooth; }
+        .dynamic-text-size { font-size: 1rem; } /* الكلاس الذي سنتحكم فيه */
+        
         .icon-lg { font-size: 4rem; color: var(--main-green); margin-bottom: 20px; margin-top: 20px; }
         
-        .faq-item { background: var(--card-dark); border: 1px solid var(--border-color); border-radius: 10px; width: 100%; max-width: 600px; padding: 15px; margin-bottom: 15px; text-align: right; }
-        .question { color: var(--main-green); font-weight: bold; font-size: 1.2rem; display: block; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        .answer { color: #ccc; line-height: 1.8; font-size: 1rem; }
+        .faq-item { background: var(--card-dark); border: 1px solid var(--border-color); border-radius: 10px; width: 100%; max-width: 600px; padding: 15px; margin-bottom: 25px; text-align: right; user-select: text; }
+        .question { color: var(--main-green); font-weight: bold; font-size: 1.2em; display: block; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .answer { color: #ccc; line-height: 1.8; font-size: 1em; }
         .q-text { color: var(--quran-red); font-weight: bold; }
         .h-text { color: var(--hadith-blue); font-weight: bold; }
 
-        .commandments-box { background: var(--card-dark); padding: 20px; border-radius: 15px; border-right: 5px solid var(--main-green); line-height: 1.8; text-align: justify; width: 100%; max-width: 600px; }
+        .commandments-box { background: var(--card-dark); padding: 20px; border-radius: 15px; border-right: 5px solid var(--main-green); line-height: 1.8; text-align: justify; width: 100%; max-width: 600px; user-select: text; }
         
         .card-support { background: #161616; padding: 30px; border-radius: 15px; border: 1px solid #222; width: 100%; max-width: 400px; }
         .btn-support { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 18px; margin: 15px 0; border-radius: 12px; text-decoration: none; color: white; font-weight: bold; }
@@ -104,82 +111,91 @@
     <div id="subPage" class="page">
         <div class="top-bar">
             <div class="back-btn" onclick="showMainPage()"><i class="fas fa-arrow-right"></i></div>
-            <div id="subPageTitle" class="app-title"></div>
+            <div id="subPageTitle" class="app-title">الأسئلة الشائعة</div>
+        </div>
+
+        <!-- شريط تكبير الخط (يظهر فقط في الصفحات الفرعية) -->
+        <div class="font-control">
+            <span>A</span>
+            <input type="range" id="fontSizeRange" min="14" max="28" value="18" oninput="changeFontSize(this.value)">
+            <span style="font-size: 1.4rem;">A</span>
         </div>
         
-        <div class="content-area">
+        <div class="content-area" id="scrollContent" onscroll="handleScroll()">
             <div id="subPageIcon" class="icon-lg"></div>
 
-            <!-- الأسئلة الشائعة -->
-            <div id="faqContent" style="display:none; width: 100%;">
-                <div class="faq-item">
-                    <span class="question">الحث على الذكر</span>
-                    <div class="answer">
-                        عاب الله على المنافقين غفلتهم فقال: <span class="q-text">﴿وَلَا يَذْكُرُونَ اللَّهَ إِلَّا قَلِيلًا﴾</span>(١) وحث المؤمنين على مخالفتهم، فقال: <span class="q-text">﴿يَأَيُّهَا الَّذِينَ ءَامَنُوا اذْكُرُوا اللَّهَ ذِكْرًا كَثِيرًا﴾</span>(٢) ولم يحدد للذكر وقتا ولا هيئة ولا صفة ولا أسلوبا، مما يدل على لزوم عدم الغفلة في كل وقت وحال وهيئة، بكل ما لم يخرج عن المجال الشرعي نصا أو اجتهادًا.<br>
-                        وبين الله فضل الذكر، فقال: <span class="q-text">﴿وَالذَّاكِرِينَ اللَّهَ كَثِيرًا وَالذَّاكِرَاتِ أَعَدَّ اللَّهُ لَهُم مَّغْفِرَةً وَأَجْرًا عَظِيمًا﴾</span>(٣) ثم بين قيمة الذكر عنده تعالى فقال: <span class="q-text">﴿فَاذْكُرُونِي أَذْكُرْكُمْ﴾</span>(٤) وبين أنه أتم أسباب الفلاح، فقال: <span class="q-text">﴿وَاذْكُرُوا اللَّهَ كَثِيرًا لَّعَلَّكُمْ تُفْلِحُونَ﴾</span>(٥) وحذر الله من الغفلة عن ذكره فقال: <span class="q-text">﴿يَأَيُّهَا الَّذِينَ ءَامَنُوا لَا تُلْهِكُمْ أَمْوالُكُمْ وَلَا أَوْلادُكُمْ عَنْ ذِكْرِ اللَّهِ ۚ وَمَنْ يَفْعَلْ ذَلِكَ فَأُولَئِكَ هُمُ الْخَاسِرُونَ﴾</span>(٦) ثم توعد المقصرين فقال: <span class="q-text">﴿وَمَنْ أَعْرَضَ عَن ذِكْرِي فَإِنَّ لَهُ مَعِيشَةً ضَنكًا وَنَحْشُرُهُ يَوْمَ الْقِيَامَةِ أَعْمَى﴾</span>(٧)(٨).<br>
-                        فالذكر إذن من أسباب توسعة الأرزاق، وإصلاح الاقتصاد الذي هو ميزان كرامة الدولة.<br>
-                        <div style="font-size: 0.85rem; color: #888; margin: 10px 0;">
-                            (١) سورة النساء: آية (١٤٢). (٢) سورة الأحزاب: آية (٤١). (٣) سورة الأحزاب: آية (٣٥). (٤) سورة البقرة: آية (١٥٢). (٥) سورة الأنفال: آية (٤٥). (٦) سورة المنافقون: آية (٩). (٧) سورة طه: آية (١٢٤).
+            <div id="dynamicContentContainer" class="dynamic-text-size">
+                <!-- الأسئلة الشائعة -->
+                <div id="faqContent" style="display:none; width: 100%;">
+                    <div class="faq-item" data-title="الحث على الذكر">
+                        <span class="question">الحث على الذكر</span>
+                        <div class="answer">
+                            عاب الله على المنافقين غفلتهم فقال: <span class="q-text">﴿وَلَا يَذْكُرُونَ اللَّهَ إِلَّا قَلِيلًا﴾</span>(١) وحث المؤمنين على مخالفتهم، فقال: <span class="q-text">﴿يَأَيُّهَا الَّذِينَ ءَامَنُوا اذْكُرُوا اللَّهَ ذِكْرًا كَثِيرًا﴾</span>(٢) ولم يحدد للذكر وقتا ولا هيئة ولا صفة ولا أسلوبا، مما يدل على لزوم عدم الغفلة في كل وقت وحال وهيئة، بكل ما لم يخرج عن المجال الشرعي نصا أو اجتهادًا.<br>
+                            وبين الله فضل الذكر، فقال: <span class="q-text">﴿وَالذَّاكِرِينَ اللَّهَ كَثِيرًا وَالذَّاكِرَاتِ أَعَدَّ اللَّهُ لَهُم مَّغْفِرَةً وَأَجْرًا عَظِيمًا﴾</span>(٣) ثم بين قيمة الذكر عنده تعالى فقال: <span class="q-text">﴿فَاذْكُرُونِي أَذْكُرْكُمْ﴾</span>(٤) وبين أنه أتم أسباب الفلاح، فقال: <span class="q-text">﴿وَاذْكُرُوا اللَّهَ كَثِيرًا لَّعَلَّكُمْ تُفْلِحُونَ﴾</span>(٥) وحذر الله من الغفلة عن ذكره فقال: <span class="q-text">﴿يَأَيُّهَا الَّذِينَ ءَامَنُوا لَا تُلْهِكُمْ أَمْوالُكُمْ وَلَا أَوْلادُكُمْ عَنْ ذِكْرِ اللَّهِ ۚ وَمَنْ يَفْعَلْ ذَلِكَ فَأُولَئِكَ هُمُ الْخَاسِرُونَ﴾</span>(٦) ثم توعد المقصرين فقال: <span class="q-text">﴿وَمَنْ أَعْرَضَ عَن ذِكْرِي فَإِنَّ لَهُ مَعِيشَةً ضَنكًا وَنَحْشُرُهُ يَوْمَ الْقِيَامَةِ أَعْمَى﴾</span>(٧)(٨).<br>
+                            فالذكر إذن من أسباب توسعة الأرزاق، وإصلاح الاقتصاد الذي هو ميزان كرامة الدولة.<br>
+                            <div style="font-size: 0.85rem; color: #888; margin: 10px 0;">
+                                (١) سورة النساء: آية (١٤٢). (٢) سورة الأحزاب: آية (٤١). (٣) سورة الأحزاب: آية (٣٥). (٤) سورة البقرة: آية (١٥٢). (٥) سورة الأنفال: آية (٤٥). (٦) سورة المنافقون: آية (٩). (٧) سورة طه: آية (١٢٤).
+                            </div>
+                            (٨) حذر الله رسوله ﷺ فقال: <span class="q-text">﴿وَلَا تَكُن مِّنَ الْغَافِلِينَ﴾</span> وقال: <span class="q-text">﴿وَلَا تُطِعْ مَنْ أَغْفَلْنَا قَلْبَهُ عَن ذِكْرِنَا﴾</span>.<br><br>
+                            ولذلك كان من وصية النبي ﷺ لسيدنا معاذ: أن يقول دبر كل صلاة: (<span class="h-text">اللهم أعني على ذكرك وشكرك</span>)، كما في رواية أبي داود بإسناد صحيح، وفي رواية البخاري قال النبي ﷺ: «<span class="h-text">مثل الذي يذكر ربه والذي لا يذكر مثل الحي والميت</span>». فهؤلاء الذين يمنعون ذكر الله أموات بشهادة المصطفى ﷺ.<br>
+                            عن أبي هريرة أن رسول الله ﷺ قال: «<span class="h-text">يقول الله تعالى: أنا عند ظن عبدي بي وأنا معه ما ذكرني، فإن ذكرني في نفسه ذكرته في نفسي، وإن ذكرني في ملأ ذكرته في ملأ خير منهم</span>» متفق عليه.<br>
+                            وروى الترمذي عن عبدالله بن بسر أن رجلا قال: يا رسول الله إن شرائع الإسلام قد كثرت علي، فأخبرني بشيء أتشبث به، فقال ﷺ: «<span class="h-text">لا يزال لسانك رطبا من ذكر الله</span>» ومعنى هذا أن الذكر المعهود خير العبادات سواء كانت بدنية أو فكرية.<br>
+                            ويدل له حديث الترمذي أيضا عن أبي الدرداء، قال: قال رسول الله ﷺ: «<span class="h-text">ألا أنبئكم بخير أعمالكم، وأزكاها عند مليككم وأرفعها في درجاتكم، وخير لكم من إنفاق الذهب والفضة، وخير لكم من أن تلقوا عدوكم فتضربوا أعناقهم، ويضربون أعناقكم؟ قالوا: بلى، قال: ذكر الله</span>».<br>
+                            ومن أوجه تفضيل الذكر على الجهاد بالسيف: أن الجهاد مرتبط بوقت ونظام ولكن الذكر مطلق، وقد يدخل على المجاهد الرياء وحب الدنيا بخلاف الذاكر لله سواء كان ذكره رغبة أو رهبة، أو ابتغاء وجه الله الكريم.<br>
+                            حسبنا أن الذكر الشرعي من فعل السادة الأكابر، كابرا عن كابر، <span class="q-text">﴿يَدْعُونَ رَبَّهُم بِالْغَدَاةِ وَالْعَشِيِّ يُرِيدُونَ وَجْهَهُ﴾</span>(١)(٢) وهذا أمر بملازمتهم والاجتماع حولهم.
                         </div>
-                        (٨) حذر الله رسوله ﷺ فقال: <span class="q-text">﴿وَلَا تَكُن مِّنَ الْغَافِلِينَ﴾</span> وقال: <span class="q-text">﴿وَلَا تُطِعْ مَنْ أَغْفَلْنَا قَلْبَهُ عَن ذِكْرِنَا﴾</span>.<br><br>
-                        ولذلك كان من وصية النبي ﷺ لسيدنا معاذ: أن يقول دبر كل صلاة: (<span class="h-text">اللهم أعني على ذكرك وشكرك</span>)، كما في رواية أبي داود بإسناد صحيح، وفي رواية البخاري قال النبي ﷺ: «<span class="h-text">مثل الذي يذكر ربه والذي لا يذكر مثل الحي والميت</span>». فهؤلاء الذين يمنعون ذكر الله أموات بشهادة المصطفى ﷺ.<br>
-                        وعن أبي هريرة أن رسول الله ﷺ قال: «<span class="h-text">يقول الله تعالى: أنا عند ظن عبدي بي وأنا معه ما ذكرني، فإن ذكرني في نفسه ذكرته في نفسي، وإن ذكرني في ملأ ذكرته في ملأ خير منهم</span>» متفق عليه.<br>
-                        وروى الترمذي عن عبدالله بن بسر أن رجلا قال: يا رسول الله إن شرائع الإسلام قد كثرت علي، فأخبرني بشيء أتشبث به، فقال ﷺ: «<span class="h-text">لا يزال لسانك رطبا من ذكر الله</span>» ومعنى هذا أن الذكر المعهود خير العبادات سواء كانت بدنية أو فكرية.<br>
-                        ويدل له حديث الترمذي أيضا عن أبي الدرداء، قال: قال رسول الله ﷺ: «<span class="h-text">ألا أنبئكم بخير أعمالكم، وأزكاها عند مليككم وأرفعها في درجاتكم، وخير لكم من إنفاق الذهب والفضة، وخير لكم من أن تلقوا عدوكم فتضربوا أعناقهم، ويضربون أعناقكم؟ قالوا: بلى، قال: ذكر الله</span>».<br>
-                        ومن أوجه تفضيل الذكر على الجهاد بالسيف: أن الجهاد مرتبط بوقت ونظام ولكن الذكر مطلق، وقد يدخل على المجاهد الرياء وحب الدنيا بخلاف الذاكر لله سواء كان ذكره رغبة أو رهبة، أو ابتغاء وجه الله الكريم.<br>
-                        وحسبنا أن الذكر الشرعي من فعل السادة الأكابر، كابرا عن كابر، <span class="q-text">﴿يَدْعُونَ رَبَّهُم بِالْغَدَاةِ وَالْعَشِيِّ يُرِيدُونَ وَجْهَهُ﴾</span>(١)(٢) وهذا أمر بملازمتهم والاجتماع حولهم.
                     </div>
-                </div>
 
-                <div class="faq-item">
-                    <span class="question">فضل الاجتماع للذكر</span>
-                    <div class="answer">
-                        قال تعالى لنبيه ﷺ: <span class="q-text">﴿وَاصْبِرْ نَفْسَكَ مَعَ الَّذِينَ يَدْعُونَ رَبَّهُم﴾</span>(٣) - أي يذكرون - وبه كان الفتح والوصول، ولا يطعن فيه إلا كل مطرود، غافل مسلوب منهم إدلالا على ما هم عليه من الخير والكرامة، وقال تعالى: <span class="q-text">﴿وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوى﴾</span>(٤) وفي الحديث الثابت يقول ﷺ: «<span class="h-text">الحمد لله الذي جعل في أمتي من أصبر نفسي معهم</span>»، وليس أبلغ في باب التقوى من الذكر، فوجب التعاون عليه والاجتماع له.<br>
-                        وقد فضل الله صلاة الجماعة على صلاة الفرد بسبعة وعشرين ضعفا، كما جاءت به الأحاديث الصحيحة، للدلالة على أن في الاجتماع على العبادة فضلاً وتعاونًا، لا يتركه إلا الغافلون.<br>
-                        وقد قال النبي ﷺ: «<span class="h-text">يد الله مع الجماعة</span>» فهو ترغيب مطلق في الحث على الاجتماع للخيرات، ومن هذا فضل الله صلاة الجمعة على غيرها لما فيها من الاجتماع والتعاون(٥).<br>
-                        وفي الحديث المتفق عليه، يقول الله تعالى عن عبده: «<span class="h-text">إذا ذكرني في ملأ ذكرته في ملأ - أي جماعة - خير منهم</span>» وهو أيضا حث ظاهر على الذكر في جماعة، ليحوز الإنسان شرف الذكر في الملأ الأعلى.<br>
-                        <div style="font-size: 0.85rem; color: #888; margin: 10px 0;">
-                            (١) سورة الأنعام: آية (٥٢). (٢) هم أهل الصفة. (٣) سورة الكهف: آية (٢٨). (٤) سورة المائدة: آية (٢). (٥) ومعنا صلاة العيدين، ومعنا اجتماع الحج الأكبر.
+                    <div class="faq-item" data-title="فضل الاجتماع للذكر">
+                        <span class="question">فضل الاجتماع للذكر</span>
+                        <div class="answer">
+                            قال تعالى لنبيه ﷺ: <span class="q-text">﴿وَاصْبِرْ نَفْسَكَ مَعَ الَّذِينَ يَدْعُونَ رَبَّهُم﴾</span>(٣) - أي يذكرون - وبه كان الفتح والوصول، ولا يطعن فيه إلا كل مطرود، غافل مسلوب منهم إدلالا على ما هم عليه من الخير والكرامة، وقال تعالى: <span class="q-text">﴿وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوى﴾</span>(٤) وفي الحديث الثابت يقول ﷺ: «<span class="h-text">الحمد لله الذي جعل في أمتي من أصبر نفسي معهم</span>»، وليس أبلغ في باب التقوى من الذكر، فوجب التعاون عليه والاجتماع له.<br>
+                            وقد فضل الله صلاة الجماعة على صلاة الفرد بسبعة وعشرين ضعفا، كما جاءت به الأحاديث الصحيحة، للدلالة على أن في الاجتماع على العبادة فضلاً وتعاونًا، لا يتركه إلا الغافلون.<br>
+                            وقد قال النبي ﷺ: «<span class="h-text">يد الله مع الجماعة</span>» فهو ترغيب مطلق في الحث على الاجتماع للخيرات، ومن هذا فضل الله صلاة الجمعة على غيرها لما فيها من الاجتماع والتعاون(٥).<br>
+                            وفي الحديث المتفق عليه، يقول الله تعالى عن عبده: «<span class="h-text">إذا ذكرني في ملأ ذكرته في ملأ - أي جماعة - خير منهم</span>» وهو أيضا حث ظاهر على الذكر في جماعة، ليحوز الإنسان شرف الذكر في الملأ الأعلى.<br>
+                            <div style="font-size: 0.85rem; color: #888; margin: 10px 0;">
+                                (١) سورة الأنعام: آية (٥٢). (٢) هم أهل الصفة. (٣) سورة الكهف: آية (٢٨). (٤) سورة المائدة: آية (٢). (٥) ومعنا صلاة العيدين، ومعنا اجتماع الحج الأكبر.
+                            </div>
+                            وفي الحديث من رواية مسلم عن أبي سعيد: «<span class="h-text">لا يقعد قوم يذكرون الله إلا حفتهم الملائكة، وغشيتهم الرحمة، ونزلت عليهم السكينة، وذكرهم الله فيمن عنده</span>». وفي حديث معاوية من رواية مسلم أيضا أن النبي ﷺ أخبرهم أن الله يباهي الملائكة بالمجتمعين لذكره، وفي البخاري ومسلم والنسائي وغيرهم أن رسول الله ﷺ رأى حلق الذكر وجلس فيها وأقرها، وحث عليها.
                         </div>
-                        وفي الحديث من رواية مسلم عن أبي سعيد: «<span class="h-text">لا يقعد قوم يذكرون الله إلا حفتهم الملائكة، وغشيتهم الرحمة، ونزلت عليهم السكينة، وذكرهم الله فيمن عنده</span>». وفي حديث معاوية من رواية مسلم أيضا أن النبي ﷺ أخبرهم أن الله يباهي الملائكة بالمجتمعين لذكره، وفي البخاري ومسلم والنسائي وغيرهم أن رسول الله ﷺ رأى حلق الذكر وجلس فيها وأقرها، وحث عليها.
+                    </div>
+
+                    <div class="faq-item" data-title="الذكر بالصوت">
+                        <span class="question">الذكر بالصوت</span>
+                        <div class="answer">
+                            قال تعالى: <span class="q-text">﴿وَاذْكُر رَّبَّكَ فِي نَفْسِكَ تَضَرُّعًا وَخِيفَةً وَدُونَ الْجَهْرِ مِنَ الْقَوْلِ بِالْغُدُوِّ وَالْآصَالِ وَلَا تَكُن مِّنَ الْغَافِلِينَ﴾</span>، وهذه الآية قانون صريح في كيفية الذكر.<br><br>
+                            **وفيها قسم الله كيفية الذكر قسمين:**<br>
+                            1. **الذكر في النفس:** وهو بالقلب وحده.<br>
+                            2. **وذكر دون الجهر:** وهو بالقلب واللسان.<br><br>
+                            نقول والله أعلم: إن في وضع الآية ترتيبا تدريجيا، يفيد أن ذكر القلب وحده أقل من ذكر القلب مع اللسان، إذ النطق بالذكر أفضل للمبتدئ حتى يتعود إشراك قلبه مع لسانه، وأفضل للمنتهي لإدراك فضل الذكر بهذا وذاك معًا.<br>
+                            قال تعالى: <span class="q-text">﴿قُلِ ادْعُوا اللَّهَ أَوِ ادْعُوا الرَّحْمَنَ ۖ أَيًّا مَّا تَدْعُوا فَلَهُ الْأَسْمَاءُ الْحُسْنَى﴾</span>(١) والدعاء نداء، والنداء لا يكون إلا بالصوت، ويعضده آيات وأحاديث كثيرة، منها: حديث عبد الله بن بسر في رواية الترمذي، أن النبي ﷺ قال للسائل: «<span class="h-text">لا يزال لسانك رطبا من ذكر الله</span>». والذكر باللسان يقتضي إظهار الصوت والإعلان به وأقله أن يسمع نفسه ومن يليه.<br>
+                            أما حديث البيهقي: قال ابن الأروع: «رجع النبي ﷺ ليلة فمر في المسجد على رجل يرفع صوته بالذكر، فقلت: يا رسول الله عسى أن يكون هذا مرائيًا، قال: <span class="h-text">لا ولكنه أواه</span>».<br>
+                            وحديث ابن مردويه: «أن رجلا كان يرفع صوته بذكر الله، فقال رجل: لو أن هذا خفض من صوته؟ فقال ﷺ: <span class="h-text">دعه فإنه أواه</span>».<br>
+                            ومنه يظهر خطأ من قالوا: إن الفكر خير من الذكر، أو أن الذكر القلبي خير من الجهري، إذ النطق بالمراد يكون مع الحاضر، أما الفكر فيكون في الغائب، والله تعالى حاضر لا يغيب فوجبت مناجاته ومناداته.
+                        </div>
                     </div>
                 </div>
 
-                <div class="faq-item">
-                    <span class="question">الذكر بالصوت</span>
-                    <div class="answer">
-                        قال تعالى: <span class="q-text">﴿وَاذْكُر رَّبَّكَ فِي نَفْسِكَ تَضَرُّعًا وَخِيفَةً وَدُونَ الْجَهْرِ مِنَ الْقَوْلِ بِالْغُدُوِّ وَالْآصَالِ وَلَا تَكُن مِّنَ الْغَافِلِينَ﴾</span>، وهذه الآية قانون صريح في كيفية الذكر.<br><br>
-                        **وفيها قسم الله كيفية الذكر قسمين:**<br>
-                        1. **الذكر في النفس:** وهو بالقلب وحده.<br>
-                        2. **وذكر دون الجهر:** وهو بالقلب واللسان.<br><br>
-                        نقول والله أعلم: إن في وضع الآية ترتيبا تدريجيا، يفيد أن ذكر القلب وحده أقل من ذكر القلب مع اللسان، إذ النطق بالذكر أفضل للمبتدئ حتى يتعود إشراك قلبه مع لسانه، وأفضل للمنتهي لإدراك فضل الذكر بهذا وذاك معًا.<br>
-                        قال تعالى: <span class="q-text">﴿قُلِ ادْعُوا اللَّهَ أَوِ ادْعُوا الرَّحْمَنَ ۖ أَيًّا مَّا تَدْعُوا فَلَهُ الْأَسْمَاءُ الْحُسْنَى﴾</span>(١) والدعاء نداء، والنداء لا يكون إلا بالصوت، ويعضده آيات وأحاديث كثيرة، منها: حديث عبد الله بن بسر في رواية الترمذي، أن النبي ﷺ قال للسائل: «<span class="h-text">لا يزال لسانك رطبا من ذكر الله</span>». والذكر باللسان يقتضي إظهار الصوت والإعلان به وأقله أن يسمع نفسه ومن يليه.<br>
-                        أما حديث البيهقي: قال ابن الأروع: «رجع النبي ﷺ ليلة فمر في المسجد على رجل يرفع صوته بالذكر، فقلت: يا رسول الله عسى أن يكون هذا مرائيًا، قال: <span class="h-text">لا ولكنه أواه</span>».<br>
-                        وحديث ابن مردويه: «أن رجلا كان يرفع صوته بذكر الله، فقال رجل: لو أن هذا خفض من صوته؟ فقال ﷺ: <span class="h-text">دعه فإنه أواه</span>».<br>
-                        ومنه يظهر خطأ من قالوا: إن الفكر خير من الذكر، أو أن الذكر القلبي خير من الجهري، إذ النطق بالمراد يكون مع الحاضر، أما الفكر فيكون في الغائب، والله تعالى حاضر لا يغيب فوجبت مناجاته ومناداته.
+                <!-- وصايا سيدنا الإمام -->
+                <div id="commandmentsContent" style="display:none; width: 100%;">
+                    <div class="commandments-box">
+                        <p>نحن الطريقة المحمدية الشرعية ، الطريقة المنتسبة لمولانا رسول الله (ﷺ) ، وإننا نسير فى طريق الله تعالى متبعين الكتاب والسنة ، وأى قول مخالف للكتاب والسنة نحن نرفضه ، كل إمام ينسب الطريقة لنفسه ونحن نسبنا الطريقة لحضرة النبى (ﷺ) </p>
+                        <p>لذا سميت باسمه ، الطريقة يعنى : النهج : نهج الوصول إلى الله تعالى ، خط السير ، طريقك فى السير إلى الله تعالى</p>
+                        <p class="q-text" style="text-align: center; margin-top: 20px; border: 1px dashed #444; padding: 15px; border-radius: 10px;">{ قُلْ هَٰذِهِ سَبِيلِي أَدْعُو إِلَى اللَّهِ ۚ عَلَىٰ بَصِيرَةٍ أَنَا وَمَنِ اتَّبَعَنِي ۖ وَسُبْحَانَ اللَّهِ وَمَا أَنَا مِنَ الْمُشْرِكِينَ} يوسف - 108</p>
                     </div>
                 </div>
-            </div>
 
-            <!-- وصايا سيدنا الإمام -->
-            <div id="commandmentsContent" style="display:none; width: 100%;">
-                <div class="commandments-box">
-                    <p>نحن الطريقة المحمدية الشرعية ، الطريقة المنتسبة لمولانا رسول الله (ﷺ) ، وإننا نسير فى طريق الله تعالى متبعين الكتاب والسنة ، وأى قول مخالف للكتاب والسنة نحن نرفضه ، كل إمام ينسب الطريقة لنفسه ونحن نسبنا الطريقة لحضرة النبى (ﷺ) </p>
-                    <p>لذا سميت باسمه ، الطريقة يعنى : النهج : نهج الوصول إلى الله تعالى ، خط السير ، طريقك فى السير إلى الله تعالى</p>
-                    <p class="q-text" style="text-align: center; margin-top: 20px; border: 1px dashed #444; padding: 15px; border-radius: 10px;">{ قُلْ هَٰذِهِ سَبِيلِي أَدْعُو إِلَى اللَّهِ ۚ عَلَىٰ بَصِيرَةٍ أَنَا وَمَنِ اتَّبَعَنِي ۖ وَسُبْحَانَ اللَّهِ وَمَا أَنَا مِنَ الْمُشْرِكِينَ} يوسف - 108</p>
+                <div id="generalContent" style="display:none; text-align: center;">
+                    <h2 style="margin-bottom:10px;">جاري العمل</h2>
+                    <p style="color: var(--main-green); font-size: 1.2rem;">داعين الله أن يتم الانتهاء في القريب العاجل</p>
                 </div>
-            </div>
 
-            <div id="generalContent" style="display:none; text-align: center;">
-                <h2 style="margin-bottom:10px;">جاري العمل</h2>
-                <p style="color: var(--main-green); font-size: 1.2rem;">داعين الله أن يتم الانتهاء في القريب العاجل</p>
-            </div>
-
-            <div id="supportContent" style="display:none;">
-                <div class="card-support" style="text-align: center;">
-                    <p style="color: #888; margin-bottom:20px;">نسعد باستقبال آرائكم لتطوير التطبيق</p>
-                    <a href="tel:01012459612" class="btn-support" style="background: #00d4ff;"><i class="fas fa-phone-alt"></i> اتصل بنا </a>
-                    <a href="https://wa.me/201012459612?text=لدي%20مقترح%20حول%20تطبيق%20السبحة%20المحمدية" class="btn-support" style="background: #25d366;"><i class="fab fa-whatsapp"></i> مراسلة واتساب </a>
+                <div id="supportContent" style="display:none;">
+                    <div class="card-support" style="text-align: center;">
+                        <p style="color: #888; margin-bottom:20px;">نسعد باستقبال آرائكم لتطوير التطبيق</p>
+                        <a href="tel:01012459612" class="btn-support" style="background: #00d4ff;"><i class="fas fa-phone-alt"></i> اتصل بنا </a>
+                        <a href="https://wa.me/201012459612?text=لدي%20مقترح%20حول%20تطبيق%20السبحة%20المحمدية" class="btn-support" style="background: #25d366;"><i class="fab fa-whatsapp"></i> مراسلة واتساب </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -199,12 +215,18 @@
     <div id="overlay" onclick="toggleMenu(event)"></div>
 
     <script>
+        let baseTitle = ""; // لحفظ العنوان الأصلي للصفحة
+
         function openSubPage(id, title, icon) {
             toggleMenu();
+            baseTitle = title;
             document.getElementById('mainPage').classList.remove('active');
             document.getElementById('subPage').classList.add('active');
             document.getElementById('subPageTitle').innerText = title;
             
+            // تصفير سكرول الصفحة عند الفتح
+            document.getElementById('scrollContent').scrollTop = 0;
+
             const iconDiv = document.getElementById('subPageIcon');
             if(id === 'faq' || id === 'commandments') {
                 iconDiv.style.display = 'none';
@@ -234,6 +256,38 @@
             document.getElementById('mainPage').classList.add('active');
         }
 
+        // وظيفة تغيير حجم الخط
+        function changeFontSize(size) {
+            const container = document.getElementById('dynamicContentContainer');
+            container.style.fontSize = size + "px";
+        }
+
+        // وظيفة مراقبة التمرير لتغيير العنوان
+        function handleScroll() {
+            const scrollContainer = document.getElementById('scrollContent');
+            const faqItems = document.querySelectorAll('.faq-item');
+            const pageTitle = document.getElementById('subPageTitle');
+            
+            // إذا لم تكن صفحة الأسئلة الشائعة هي المعروضة، لا تفعل شيئاً
+            if (document.getElementById('faqContent').style.display === 'none') {
+                pageTitle.innerText = baseTitle;
+                return;
+            }
+
+            let currentTitle = baseTitle;
+            const containerTop = scrollContainer.getBoundingClientRect().top;
+
+            faqItems.forEach(item => {
+                const rect = item.getBoundingClientRect();
+                // إذا كان أعلى السؤال قد وصل لمنتصف الشاشة تقريباً أو تجاوزه للأعلى
+                if (rect.top - containerTop < 100) {
+                    currentTitle = item.getAttribute('data-title');
+                }
+            });
+
+            pageTitle.innerText = currentTitle;
+        }
+
         function toggleMenu(e) {
             if(e) e.stopPropagation();
             const s = document.getElementById("sidebar"), o = document.getElementById("overlay");
@@ -242,6 +296,7 @@
             o.style.display = isOpen ? "none" : "block";
         }
 
+        // --- كود السبحة الأساسي ---
         const صلوات = "الصلوات المحمدية";
         const tasksMurid = [{ name: صلوات, target: 3, intent: "بسم الله الرحمن الرحيم - اللهم اني نويت قراءة الورد " },{ name: "الفواتح السبع", target: 7 },{ name: صلوات, target: 1 },{ name: "استغفر الله العظيم هو التواب الرحيم", target: 100 },{ name: صلوات, target: 1 },{ name: "لا إله إلا الله", target: 100 },{ name: صلوات, target: 1 },{ name: "اللهم صلِّ على سيدنا محمد وعلى آله وصحبه وسلم", target: 100 },{ name: صلوات, target: 3 },{ name: "الفواتح السبع", target: 7 },{ name: صلوات, target: 3 }];
         const tasksSupervisor = [{ name: صلوات, target: 3, intent: "بسم الله الرحمن الرحيم - اللهم اني نويت قراءة الورد" },{ name: "الفواتح السبع", target: 7 },{ name: صلوات, target: 1 },{ name: "استغفر الله العظيم هو التواب الرحيم", target: 100 },{ name: صلوات, target: 1 },{ name: "لا إله إلا الله", target: 100 },{ name: صلوات, target: 1 },{ name: "الله", target: 100 },{ name: صلوات, target: 1 },{ name: "هو", target: 100 },{ name: صلوات, target: 1 },{ name: "حي", target: 100 },{ name: صلوات, target: 1 },{ name: "حق", target: 100 },{ name: صلوات, target: 1 },{ name: "قيوم", target: 100 },{ name: صلوات, target: 1 },{ name: "قهار", target: 100 },{ name: صلوات, target: 1 },{ name: "وهاب", target: 100 },{ name: صلوات, target: 1 },{ name: "اللهم صلِّ على سيدنا محمد وعلى آله وصحبه وسلم", target: 100 },{ name: صلوات, target: 3 },{ name: "الفواتح السبع", target: 7 },{ name: صلوات, target: 3 }];
