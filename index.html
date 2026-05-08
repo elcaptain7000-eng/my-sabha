@@ -8,93 +8,35 @@
     <title>السبحة المحمدية</title>
     
     <link rel="manifest" href="manifest.json">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
         :root { --main-green: #4CAF50; --bg-black: #0a0a0a; --card-dark: #161616; --accent-blue: #00d4ff; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; touch-action: manipulation; }
         
-        body { 
-            background: var(--bg-black); 
-            color: white; 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; 
-            height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-        }
+        body { background: var(--bg-black); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; height: 100vh; overflow: hidden; }
 
-        .top-bar {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            background: var(--card-dark);
-            border-bottom: 1px solid #222;
-            position: relative;
-        }
+        /* نظام الصفحات */
+        .page { display: none; height: 100vh; width: 100vw; flex-direction: column; position: absolute; top: 0; left: 0; background: var(--bg-black); }
+        .page.active { display: flex; }
 
-        #menuBtn { 
-            cursor: pointer; 
-            font-size: 1.5rem; 
-            color: white; 
-            padding: 5px;
-            position: absolute;
-            left: 15px;
-        }
+        .top-bar { display: flex; align-items: center; padding: 10px 15px; background: var(--card-dark); border-bottom: 1px solid #222; position: relative; height: 60px; }
 
-        .app-title { 
-            flex-grow: 1; 
-            text-align: center; 
-            font-weight: bold; 
-            color: var(--main-green);
-        }
+        #menuBtn, .back-btn { cursor: pointer; font-size: 1.5rem; color: white; padding: 10px; position: absolute; left: 15px; z-index: 10; }
+        .back-btn { right: 15px; left: auto; } /* سهم الرجوع على اليمين */
 
-        .mode-selector { 
-            display: flex; 
-            gap: 5px; 
-            padding: 10px; 
-            justify-content: center; 
-            background: #111;
-        }
+        .app-title { flex-grow: 1; text-align: center; font-weight: bold; color: var(--main-green); }
 
-        .mode-btn { 
-            flex: 1; 
-            padding: 12px 2px; 
-            border-radius: 8px; 
-            border: 1px solid #333; 
-            background: #222; 
-            color: #888; 
-            font-weight: bold; 
-            font-size: 0.75rem; 
-            transition: 0.3s;
-            white-space: nowrap;
-        }
-
+        .mode-selector { display: flex; gap: 5px; padding: 10px; justify-content: center; background: #111; }
+        .mode-btn { flex: 1; padding: 12px 2px; border-radius: 8px; border: 1px solid #333; background: #222; color: #888; font-weight: bold; font-size: 0.75rem; transition: 0.3s; white-space: nowrap; }
         .mode-btn.active { background: var(--main-green); color: white; border-color: var(--main-green); }
 
-        .sidebar { 
-            height: 100%; 
-            width: 0; 
-            position: fixed; 
-            z-index: 2000; 
-            top: 0; 
-            left: 0; 
-            background-color: #111; 
-            overflow-x: hidden; 
-            transition: 0.5s; 
-            padding-top: 60px; 
-            text-align: right; 
-            box-shadow: 2px 0 10px rgba(0,0,0,0.5);
-        }
-        
-        .sidebar-content a { padding: 15px 25px; text-decoration: none; font-size: 1.1rem; color: #818181; display: block; border-bottom: 1px solid #222; }
+        /* القائمة الجانبية */
+        .sidebar { height: 100%; width: 0; position: fixed; z-index: 3000; top: 0; left: 0; background-color: #111; overflow-x: hidden; transition: 0.5s; padding-top: 60px; text-align: right; box-shadow: 2px 0 10px rgba(0,0,0,0.5); }
+        .sidebar-content a { padding: 15px 25px; text-decoration: none; font-size: 1.1rem; color: #818181; display: block; border-bottom: 1px solid #222; cursor: pointer; }
         .sidebar-content a i { margin-left: 10px; color: var(--main-green); }
-        
         .sidebar .closebtn { position: absolute; top: 10px; right: 25px; font-size: 36px; color: #fff; text-decoration: none; }
-        
-        #overlay { display: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; background-color: rgba(0,0,0,0.7); z-index: 1500; }
+        #overlay { display: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; background-color: rgba(0,0,0,0.7); z-index: 2500; }
 
         .main-display { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .intent-area { font-size: 0.85rem; color: var(--accent-blue); text-align: center; padding: 0 20px; min-height: 2.2rem; font-weight: bold; }
@@ -109,110 +51,107 @@
         .footer-info { font-size: 0.9rem; color: #444; font-weight: bold; margin-bottom: 10px; }
         .controls-row { display: flex; gap: 15px; justify-content: center; align-items: center; padding-bottom: 30px; }
         .btn-circle { background: #151515; border: 1px solid #252525; color: #666; width: 60px; height: 60px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+
+        /* تنسيق الصفحات الداخلية */
+        .content-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        .icon-lg { font-size: 5rem; color: var(--main-green); margin-bottom: 25px; }
+        .card-support { background: #161616; padding: 30px; border-radius: 15px; border: 1px solid #222; width: 100%; max-width: 400px; }
+        .btn-support { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 18px; margin: 15px 0; border-radius: 12px; text-decoration: none; color: white; font-weight: bold; font-size: 1.1rem; }
     </style>
 </head>
 <body onclick="handleGlobalTap(event)">
 
-    <div class="top-bar">
-        <div id="menuBtn" onclick="toggleMenu(event)"><i class="fas fa-bars"></i></div>
-        <div class="app-title">السبحة المحمدية</div>
+    <div id="mainPage" class="page active">
+        <div class="top-bar">
+            <div id="menuBtn" onclick="toggleMenu(event)"><i class="fas fa-bars"></i></div>
+            <div class="app-title">السبحة المحمدية</div>
+        </div>
+
+        <div class="mode-selector">
+            <button id="freeMode" class="mode-btn active" onclick="setMode('free', event)">عداد حر</button>
+            <button id="muridMode" class="mode-btn" onclick="setMode('murid', event)">ورد المريد والخدمة</button>
+            <button id="supervisorMode" class="mode-btn" onclick="setMode('supervisor', event)">ورد المشرف</button>
+        </div>
+
+        <div class="main-display">
+            <div id="intent" class="intent-area"></div>
+            <div id="taskTitle" class="current-task" onclick="handleTaskClick(event)"></div>
+            <div class="counter-container">
+                <svg class="progress-svg"><circle cx="140" cy="140" r="130" /><circle id="progressBar" class="bar" cx="140" cy="140" r="130" /></svg>
+                <div id="mainCounter" class="counter-number">0</div>
+            </div>
+            <div id="progressInfo" class="footer-info"></div>
+            <div class="controls-row">
+                <button id="btnPrev" class="btn-circle" style="visibility: hidden;" onclick="prevTask(event)"><i class="fas fa-chevron-right"></i></button>
+                <button class="btn-circle" style="color: #8b2d26;" onclick="resetAll(event)"><i class="fas fa-undo"></i></button>
+                <button class="btn-circle" style="color: #8b7d26;" onclick="decrement(event)"><i class="fas fa-minus"></i></button>
+                <button id="btnNext" class="btn-circle" style="visibility: hidden;" onclick="skipTask(event)"><i class="fas fa-chevron-left"></i></button>
+            </div>
+        </div>
     </div>
 
-    <div class="mode-selector">
-        <button id="freeMode" class="mode-btn active" onclick="setMode('free', event)">عداد حر</button>
-        <button id="muridMode" class="mode-btn" onclick="setMode('murid', event)">ورد المريد والخدمة</button>
-        <button id="supervisorMode" class="mode-btn" onclick="setMode('supervisor', event)">ورد المشرف</button>
+    <div id="subPage" class="page">
+        <div class="top-bar">
+            <div class="back-btn" onclick="showMainPage()"><i class="fas fa-arrow-right"></i></div>
+            <div id="subPageTitle" class="app-title"></div>
+        </div>
+        
+        <div id="generalContent" class="content-area">
+            <div id="subPageIcon" class="icon-lg"></div>
+            <h2 style="margin-bottom:10px;">جاري العمل</h2>
+            <p style="color: var(--main-green); font-size: 1.2rem;">داعين الله أن يتم الانتهاء في القريب العاجل</p>
+        </div>
+
+        <div id="supportContent" class="content-area" style="display:none;">
+            <div class="card-support">
+                <p style="color: #888; margin-bottom:20px;">نسعد باستقبال آرائكم لتطوير التطبيق</p>
+                <a href="tel:01012459612" class="btn-support" style="background: #00d4ff;"><i class="fas fa-phone-alt"></i> اتصل بنا </a>
+                <a href="https://wa.me/201012459612" class="btn-support" style="background: #25d366;"><i class="fab fa-whatsapp"></i> مراسلة واتساب </a>
+            </div>
+        </div>
     </div>
 
     <div id="sidebar" class="sidebar">
         <a href="javascript:void(0)" class="closebtn" onclick="toggleMenu(event)">&times;</a>
         <div class="sidebar-content">
-            <a href="faq.html"><i class="fas fa-question-circle"></i> الأسئلة الشائعة</a>
-            <a href="sessions.html"><i class="fas fa-calendar-alt"></i> الجلسات الشهرية</a>
-            <a href="commandments.html"><i class="fas fa-scroll"></i> من وصايا سيدنا الإمام</a>
-            <a href="events.html"><i class="fas fa-star"></i> جدول الاحتفالات</a>
-            <a href="regions.html"><i class="fas fa-map-marker-alt"></i> المناطق</a>
-            <a href="support.html"><i class="fas fa-headset"></i> للمقترحات والدعم</a>
+            <a onclick="openSubPage('faq', 'الأسئلة الشائعة', 'fa-question-circle')"><i class="fas fa-question-circle"></i> الأسئلة الشائعة</a>
+            <a onclick="openSubPage('sessions', 'الجلسات الشهرية', 'fa-calendar-alt')"><i class="fas fa-calendar-alt"></i> الجلسات الشهرية</a>
+            <a onclick="openSubPage('commandments', 'من وصايا سيدنا الإمام', 'fa-scroll')"><i class="fas fa-scroll"></i> من وصايا سيدنا الإمام</a>
+            <a onclick="openSubPage('events', 'جدول الاحتفالات', 'fa-star')"><i class="fas fa-star"></i> جدول الاحتفالات</a>
+            <a onclick="openSubPage('regions', 'المناطق', 'fa-map-marker-alt')"><i class="fas fa-map-marker-alt"></i> المناطق</a>
+            <a onclick="openSubPage('support', 'للمقترحات والدعم', 'fa-headset')"><i class="fas fa-headset"></i> للمقترحات والدعم</a>
         </div>
     </div>
-
     <div id="overlay" onclick="toggleMenu(event)"></div>
 
-    <div class="main-display">
-        <div id="intent" class="intent-area"></div>
-        <div id="taskTitle" class="current-task" onclick="handleTaskClick(event)"></div>
-
-        <div class="counter-container">
-            <svg class="progress-svg">
-                <circle cx="140" cy="140" r="130" />
-                <circle id="progressBar" class="bar" cx="140" cy="140" r="130" />
-            </svg>
-            <div id="mainCounter" class="counter-number">0</div>
-        </div>
-
-        <div id="progressInfo" class="footer-info"></div>
-
-        <div class="controls-row">
-            <button id="btnPrev" class="btn-circle" style="visibility: hidden;" onclick="prevTask(event)"><i class="fas fa-chevron-right"></i></button>
-            <button class="btn-circle" style="color: #8b2d26;" onclick="resetAll(event)"><i class="fas fa-undo"></i></button>
-            <button class="btn-circle" style="color: #8b7d26;" onclick="decrement(event)"><i class="fas fa-minus"></i></button>
-            <button id="btnNext" class="btn-circle" style="visibility: hidden;" onclick="skipTask(event)"><i class="fas fa-chevron-left"></i></button>
-        </div>
-    </div>
-
     <script>
-        // تسجيل الـ Service Worker عشان التطبيق يشتغل أوفلاين ويظهر زرار التثبيت
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('SW Registered'))
-                .catch(err => console.log('SW Error', err));
-            });
+        // دالة فتح الصفحات الفرعية أوفلاين
+        function openSubPage(id, title, icon) {
+            toggleMenu();
+            document.getElementById('mainPage').classList.remove('active');
+            document.getElementById('subPage').classList.add('active');
+            document.getElementById('subPageTitle').innerText = title;
+            document.getElementById('subPageIcon').innerHTML = `<i class="fas ${icon}"></i>`;
+            
+            // إظهار واجهة الدعم فقط لو الصفحة المختارة هي الدعم
+            if(id === 'support') {
+                document.getElementById('generalContent').style.display = 'none';
+                document.getElementById('supportContent').style.display = 'flex';
+            } else {
+                document.getElementById('generalContent').style.display = 'flex';
+                document.getElementById('supportContent').style.display = 'none';
+            }
         }
 
-        const صلوات = "الصلوات المحمدية";
-        
-        const tasksMurid = [
-            { name: صلوات, target: 3, intent: "بسم الله الرحمن الرحيم - اللهم اني نويت قراءة الورد " },
-            { name: "الفواتح السبع", target: 7 },
-            { name: صلوات, target: 1 },
-            { name: "استغفر الله العظيم هو التواب الرحيم", target: 100 },
-            { name: صلوات, target: 1 },
-            { name: "لا إله إلا الله", target: 100 },
-            { name: صلوات, target: 1 },
-            { name: "اللهم صلِّ على سيدنا محمد وعلى آله وصحبه وسلم", target: 100 },
-            { name: صلوات, target: 3 },
-            { name: "الفواتح السبع", target: 7 },
-            { name: صلوات, target: 3 }
-        ];
+        function showMainPage() {
+            document.getElementById('subPage').classList.remove('active');
+            document.getElementById('mainPage').classList.add('active');
+        }
 
-        const tasksSupervisor = [
-            { name: صلوات, target: 3, intent: "بسم الله الرحمن الرحيم - اللهم اني نويت قراءة الورد" },
-            { name: "الفواتح السبع", target: 7 },
-            { name: صلوات, target: 1 },
-            { name: "استغفر الله العظيم هو التواب الرحيم", target: 100 },
-            { name: صلوات, target: 1 },
-            { name: "لا إله إلا الله", target: 100 },
-            { name: صلوات, target: 1 },
-            { name: "الله", target: 100 },
-            { name: صلوات, target: 1 },
-            { name: "هو", target: 100 },
-            { name: صلوات, target: 1 },
-            { name: "حي", target: 100 },
-            { name: صلوات, target: 1 },
-            { name: "حق", target: 100 },
-            { name: صلوات, target: 1 },
-            { name: "قيوم", target: 100 },
-            { name: صلوات, target: 1 },
-            { name: "قهار", target: 100 },
-            { name: صلوات, target: 1 },
-            { name: "وهاب", target: 100 },
-            { name: صلوات, target: 1 },
-            { name: "اللهم صلِّ على سيدنا محمد وعلى آله وصحبه وسلم", target: 100 },
-            { name: صلوات, target: 3 },
-            { name: "الفواتح السبع", target: 7 },
-            { name: صلوات, target: 3 }
-        ];
+        // كود السبحة الأصلي
+        const صلوات = "الصلوات المحمدية";
+        const tasksMurid = [{ name: صلوات, target: 3, intent: "بسم الله الرحمن الرحيم - اللهم اني نويت قراءة الورد " },{ name: "الفواتح السبع", target: 7 },{ name: صلوات, target: 1 },{ name: "استغفر الله العظيم هو التواب الرحيم", target: 100 },{ name: صلوات, target: 1 },{ name: "لا إله إلا الله", target: 100 },{ name: صلوات, target: 1 },{ name: "اللهم صلِّ على سيدنا محمد وعلى آله وصحبه وسلم", target: 100 },{ name: صلوات, target: 3 },{ name: "الفواتح السبع", target: 7 },{ name: صلوات, target: 3 }];
+        const tasksSupervisor = [{ name: صلوات, target: 3, intent: "بسم الله الرحمن الرحيم - اللهم اني نويت قراءة الورد" },{ name: "الفواتح السبع", target: 7 },{ name: صلوات, target: 1 },{ name: "استغفر الله العظيم هو التواب الرحيم", target: 100 },{ name: صلوات, target: 1 },{ name: "لا إله إلا الله", target: 100 },{ name: صلوات, target: 1 },{ name: "الله", target: 100 },{ name: صلوات, target: 1 },{ name: "هو", target: 100 },{ name: صلوات, target: 1 },{ name: "حي", target: 100 },{ name: صلوات, target: 1 },{ name: "حق", target: 100 },{ name: صلوات, target: 1 },{ name: "قيوم", target: 100 },{ name: صلوات, target: 1 },{ name: "قهار", target: 100 },{ name: صلوات, target: 1 },{ name: "وهاب", target: 100 },{ name: صلوات, target: 1 },{ name: "اللهم صلِّ على سيدنا محمد وعلى آله وصحبه وسلم", target: 100 },{ name: صلوات, target: 3 },{ name: "الفواتح السبع", target: 7 },{ name: صلوات, target: 3 }];
 
         let count = 0, mode = 'free', currentIdx = 0, freeTask = "اضغط لتغيير الذكر", canTap = true;
 
@@ -225,17 +164,17 @@
         }
 
         function handleGlobalTap(e) {
+            // منع العداد لو الصفحة الفرعية مفتوحة أو لو المنيو مفتوح
+            if(!document.getElementById('mainPage').classList.contains('active')) return;
             if(!canTap || e.target.closest('#sidebar') || e.target.closest('.top-bar') || e.target.closest('.controls-row') || e.target.closest('.mode-selector') || e.target.closest('.current-task')) return;
+            
             count++; 
             if (navigator.vibrate) navigator.vibrate(40);
             if(mode !== 'free') {
                 const currentTasks = mode === 'murid' ? tasksMurid : tasksSupervisor;
                 let t = currentTasks[currentIdx];
                 updateProgress((Math.min(count, t.target) / t.target) * 816);
-                if(count >= t.target) {
-                    canTap = false;
-                    setTimeout(() => { nextTask(); canTap = true; }, 600);
-                }
+                if(count >= t.target) { canTap = false; setTimeout(() => { nextTask(); canTap = true; }, 600); }
             }
             updateUI();
         }
@@ -259,22 +198,8 @@
             document.getElementById('btnNext').style.visibility = isFree ? 'hidden' : 'visible';
         }
 
-        function setMode(m, e) {
-            if(e) e.stopPropagation();
-            mode = m; count = 0; currentIdx = 0; 
-            document.getElementById('freeMode').classList.toggle('active', m === 'free');
-            document.getElementById('muridMode').classList.toggle('active', m === 'murid');
-            document.getElementById('supervisorMode').classList.toggle('active', m === 'supervisor');
-            updateUI(); updateProgress(0);
-        }
-
-        function nextTask() {
-            const currentTasks = mode === 'murid' ? tasksMurid : tasksSupervisor;
-            if(currentIdx < currentTasks.length - 1) {
-                currentIdx++; count = 0; updateProgress(0); updateUI();
-            } else { alert("تم الانتهاء من الورد بفضل الله"); setMode('free'); }
-        }
-
+        function setMode(m, e) { if(e) e.stopPropagation(); mode = m; count = 0; currentIdx = 0; document.getElementById('freeMode').classList.toggle('active', m === 'free'); document.getElementById('muridMode').classList.toggle('active', m === 'murid'); document.getElementById('supervisorMode').classList.toggle('active', m === 'supervisor'); updateUI(); updateProgress(0); }
+        function nextTask() { const currentTasks = mode === 'murid' ? tasksMurid : tasksSupervisor; if(currentIdx < currentTasks.length - 1) { currentIdx++; count = 0; updateProgress(0); updateUI(); } else { alert("تم الانتهاء من الورد بفضل الله"); setMode('free'); } }
         function prevTask(e) { e.stopPropagation(); if(currentIdx > 0) { currentIdx--; count = 0; updateProgress(0); updateUI(); } }
         function skipTask(e) { e.stopPropagation(); nextTask(); }
         function decrement(e) { e.stopPropagation(); if(count > 0) count--; updateUI(); }
