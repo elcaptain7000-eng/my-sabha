@@ -1,21 +1,28 @@
-const CACHE_NAME = 'subha-ultimate-v5'; // غيرنا الاسم عشان يمسح القديم
+const CACHE_NAME = 'subha-ultimate-v7'; 
 const assets = [
   './',
   './index.html',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
+  './manifest.json',
+  './icon.png',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'
 ];
 
-// مرحلة التثبيت: خزن الملفات في ذاكرة الموبايل
 self.addEventListener('install', e => {
   self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(assets);
+      // تم استخدام طريقة fetch لكل ملف لضمان عدم تعطل الكاش إذا سقط ملف واحد
+      return Promise.all(
+        assets.map(url => {
+          return fetch(url).then(res => {
+            if (res.ok) return cache.put(url, res);
+          }).catch(err => console.log('فشل تحميل:', url));
+        })
+      );
     })
   );
 });
 
-// مرحلة التفعيل: امسح أي نسخة قديمة معلقة
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys => {
@@ -24,22 +31,13 @@ self.addEventListener('activate', e => {
       );
     })
   );
-  self.clients.claim();
+  return self.clients.claim();
 });
 
-// أهم مرحلة: سحب الملفات
 self.addEventListener('fetch', e => {
   e.respondWith(
-    // دور في المخزن (Cache) الأول
-    caches.match(e.request, {ignoreSearch: true}).then(response => {
-      // لو لقيته في المخزن افتحه فوراً (حتى لو مفيش نت)
-      // لو مش موجود، روح هاته من النت
-      return response || fetch(e.request).catch(() => {
-        // لو مفيش نت خالص والملف مش مخزن، افتح الصفحة الرئيسية
-        if (e.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-      });
+    caches.match(e.request).then(response => {
+      return response || fetch(e.request);
     })
   );
 });
